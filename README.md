@@ -229,7 +229,7 @@ Your backend is persistent in terms of data storage. That means the data will re
 
 Once the backend has started, you can view the API documentation by navigating to `http://localhost:[port]` in a web browser.
 
-The port that the backend runs on (and that the frontend can use) is specified in `frontend/src/config.json`. You can change the port in this file. This file exists so that your frontend knows what port to use when talking to the backend.
+The port that the backend runs on (and that the frontend can use) is specified in `frontend/src/config.js`. You can change the port in this file. This file exists so that your frontend knows what port to use when talking to the backend.
 
 ## 4. Constraints & Assumptions
 
