@@ -11,8 +11,8 @@
 
 ## 0. Change Log
 
-Coming Soon
-  
+* 30/09: Fixed config file imports
+
 ## 1. Background & Motivation
 
 Web-based applications are becoming the most common way to build a digital capability accessible to a mass audience. While there are modern tools that help us build these rapidly, it's important to understand the fundamental JavaScript-based technology and architectures that exist, both to gain a deeper understanding for when these skills may be needed, but also to simply understand the mechanics of fundamental JS. Even when working with a high level framework like ReactJS, understanding (in-concept) the code that it is transpiled to will ensure you're a more well rounded web-based engineer.
@@ -229,7 +229,7 @@ Your backend is persistent in terms of data storage. That means the data will re
 
 Once the backend has started, you can view the API documentation by navigating to `http://localhost:[port]` in a web browser.
 
-The port that the backend runs on (and that the frontend can use) is specified in `frontend/src/config.json`. You can change the port in this file. This file exists so that your frontend knows what port to use when talking to the backend.
+The port that the backend runs on (and that the frontend can use) is specified in `frontend/src/config.js`. You can change the port in this file. This file exists so that your frontend knows what port to use when talking to the backend.
 
 ## 4. Constraints & Assumptions
 
