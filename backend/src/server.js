@@ -67,14 +67,12 @@ const authed = fn => async (req, res) => {
 
 app.post('/auth/login', catchErrors(async (req, res) => {
   const { email, password, } = req.body;
-  const token = await login(email, password);
-  return res.json({ token, });
+  return res.json(await login(email, password));
 }));
 
 app.post('/auth/register', catchErrors(async (req, res) => {
   const { email, password, name, } = req.body;
-  const token = await register(email, password, name);
-  return res.json({ token, });
+  return res.json(await register(email, password, name));
 }));
 
 app.post('/auth/logout', catchErrors(authed(async (req, res, authUserId) => {

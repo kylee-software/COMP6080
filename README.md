@@ -12,6 +12,7 @@
 ## 0. Change Log
 
 * 30/09: Fixed config file imports
+* 05/10: `/auth/register` and `/auth/login` now return userId
 
 ## 1. Background & Motivation
 
