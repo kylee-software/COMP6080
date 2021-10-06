@@ -13,6 +13,7 @@
 
 * 30/09: Fixed config file imports
 * 05/10: `/auth/register` and `/auth/login` now return userId
+* 06/10: Added requirement for user to be able to join/leave a channel
 
 ## 1. Background & Motivation
 
@@ -79,6 +80,8 @@ Milestone 2 focuses on creating **channels**, and viewing the basic channel scre
  * When viewing a single channel screen, certain information should be accessible/visible within 0-1 clicks.
  * This information includes the name of the channel, description, public/private setting, creation timestamp (as a time/date not as an ISO string, flexible to whatever you think is user-friendly), and name of the creator of the channel.
  * Users should be able to edit the channel's name and description in some way.
+ * If the user is not a member of the channel, they do not need to see the channel details, but should be given a way to join the channel.
+ * If the user is a member of the channel, there should be an option to leave the channel.
 
 ### 2.3. Milestone 3 - Channel messages (18%)
 
