@@ -6,22 +6,31 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Slackr</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- You can add your styles and scripts here -->
   <link rel="stylesheet" type="text/css" media="screen" href="styles/provided.css" />
   <script type="module" src="src/helpers.js"></script>
 </head>
 
 <body>
-  <!-- This is an example app structure, you can modify this as much as you choose -->
-  <header class="banner">
-    <h1>Slackr</h1>
-  </header>
-  <main role="main">
-    <!-- app goes here -->
-  </main>
-  <footer>
-    <p>&copy; Slackr</p>
-  </footer>
+  <div class="start-container" id="start-page">
+    <div class="start-logo">
+      <img src="logo.png" alt="Slackr Logo">
+    </div>
+    <div id="login">
+      <div class="input-box">
+        <label for="login-email">Email:</label>
+        <input type="text" id="login-email" name="login-email">
+      </div>
+      <div class="input-box">
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" name="login-password">
+      </div>
+      <div class="center">
+        <button type="submit" id="login-submit">Login</button>
+      </div>
+      <p style="text-align: center">Not a member? <span class="a" id="register-text">Sign Up</span></p>
+    </div>
+  </div>
+  <div class="footer">footer</div>
   <script type="module" src="src/main.js"></script>
 </body>
 
