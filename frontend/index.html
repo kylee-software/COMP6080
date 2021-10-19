@@ -11,26 +11,50 @@
 </head>
 
 <body>
-  <div class="start-container" id="start-page">
-    <div class="start-logo">
-      <img src="logo.png" alt="Slackr Logo">
+  <div id="start-page" class="start-page">
+    <div class="start-container">
+      <div class="start-logo">
+        <img src="logo.png" alt="Slackr Logo">
+      </div>
+      <div id="login">
+        <div class="input-box">
+          <label for="login-email">Email:</label>
+          <input type="text" id="login-email" name="login-email">
+        </div>
+        <div class="input-box">
+          <label for="login-password">Password:</label>
+          <input type="password" id="login-password" name="login-password">
+        </div>
+        <div class="center">
+          <button type="submit" id="login-submit">Login</button>
+        </div>
+        <p style="text-align: center">Not a member? <span class="a" id="switch-register">Sign Up</span></p>
+      </div>
+      <div id="register" hidden>
+        <div class="input-box">
+          <label for="register-email">Email:</label>
+          <input type="text" id="register-email" name="register-email">
+        </div>
+        <div class="input-box">
+          <label for="register-name">Name:</label>
+          <input type="text" id="register-name" name="register-name">
+        </div>
+        <div class="input-box">
+          <label for="register-pass">Password:</label>
+          <input type="password" id="register-pass" name="register-pass">
+        </div>
+        <div class="input-box">
+          <label for="confirm-pass">Confirm Password:</label>
+          <input type="password" id="confirm-pass" name="confirm-pass">
+        </div>
+        <div class="center">
+          <button type="submit" id="register-submit">Register</button>
+        </div>
+        <p style="text-align: center">Already a member? <span class="a" id="switch-login">Login</span></p>
+      </div>
     </div>
-    <div id="login">
-      <div class="input-box">
-        <label for="login-email">Email:</label>
-        <input type="text" id="login-email" name="login-email">
-      </div>
-      <div class="input-box">
-        <label for="login-password">Password:</label>
-        <input type="password" id="login-password" name="login-password">
-      </div>
-      <div class="center">
-        <button type="submit" id="login-submit">Login</button>
-      </div>
-      <p style="text-align: center">Not a member? <span class="a" id="register-text">Sign Up</span></p>
-    </div>
+    <div class="footer">footer</div>
   </div>
-  <div class="footer">footer</div>
   <script type="module" src="src/main.js"></script>
 </body>
 

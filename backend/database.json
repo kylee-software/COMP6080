@@ -15,6 +15,14 @@
       "bio": null,
       "image": null,
       "sessionActive": true
+    },
+    "82006": {
+      "email": "",
+      "name": "",
+      "password": "",
+      "bio": null,
+      "image": null,
+      "sessionActive": true
     }
   },
   "channels": {
