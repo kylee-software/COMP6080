@@ -1,22 +1,37 @@
-import { BACKEND_PORT } from './config.js';
+import {BACKEND_PORT} from './config.js';
 // A helper you may want to use when uploading new images to the server.
-import { fileToDataUrl } from './helpers.js';
+import {fileToDataUrl} from './helpers.js';
+
+// const displayEventListener = (elementId, option, func) => {
+//     document.getElementById(elementId).addEventListener(option, () => func);
+// };
+
+const display = (elementId, option) => document.getElementById(elementId).style.display = option;
 
 // Switching back and forth between login and register page
+// displayEventListener('switch-register', 'click', display('login', 'none'));
 document.getElementById('switch-register').addEventListener('click', () => {
-    document.getElementById('login').hidden = true;
-    document.getElementById('register').hidden = false;
+    display('login', 'none');
+    display('register', 'block');
 })
 
 document.getElementById('switch-login').addEventListener('click', () => {
-    document.getElementById('register').hidden = true;
-    document.getElementById('login').style.visibility = 'visible';
+    display('login', 'block');
+    display('register', 'none');
 })
+
+const displayErrorMsg = (message) => {
+    document.getElementById('error-message').innerText = message;
+    display('errorMsg-popup', 'block');
+}
+document.getElementById('x-close').addEventListener('click', () => display('errorMsg-popup', 'none'));
+document.getElementById('errorMsg-close').addEventListener('click', () => display('errorMsg-popup', 'none'));
+
 
 const apiFetch = (method, path, token, body) => {
     const requestInfo = {
         method: method,
-        headers: { 'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body),
     };
 
@@ -26,23 +41,23 @@ const apiFetch = (method, path, token, body) => {
 
     return new Promise((resolve, reject) => {
         fetch(`http://localhost:5005/${path}`, requestInfo)
-        .then((response) => {
-            if (response.status === 400 || response.status === 404) {
-                response.json().then((errorMsg) => {
-                    reject(errorMsg['error']);
-                });
-            } else if (response.status === 200) {
-                response.json().then(data => {
-                    resolve(data);
-                });
-            }
-        })
-        .catch((error) => console.log(err));
+            .then((response) => {
+                if (response.status === 400 || response.status === 404) {
+                    response.json().then((errorMsg) => {
+                        reject(errorMsg['error']);
+                    });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        resolve(data);
+                    });
+                }
+            })
+            .catch((error) => console.log(error));
     });
 }
 
-let TOKEN = null;
-const storeToken = (token) => TOKEN = token;
+const storeToken = (userId, token) => localStorage.setItem(userId, token);
+const removeToken = (useId) => localStorage.removeItem(useId);
 
 document.getElementById('register-submit').addEventListener('click', () => {
     const email = document.getElementById('register-email').value;
@@ -52,19 +67,20 @@ document.getElementById('register-submit').addEventListener('click', () => {
 
     // Check if the two passwords are the same or not
     if (password !== confirmPass) {
-        alert('passwords are not identical');
+        displayErrorMsg('Passwords do not match!');
+    } else {
+        const body = {
+            'email': email,
+            'password': password,
+            'name': name,
+        };
+
+        apiFetch('POST', 'auth/register', null, body)
+            .then((data) => {
+                storeToken(data['userId'], data['token'])
+            })
+            .catch((errorMsg) => displayErrorMsg(errorMsg));
     }
-
-    const body = {
-        'email': email,
-        'password': password,
-        'name': name,
-    };
-
-    apiFetch('POST', 'auth/register', null, body)
-    .then(data => {
-        storeToken(data['token']);
-    })
 })
 
 document.getElementById('login-submit').addEventListener('click', () => {
@@ -76,7 +92,10 @@ document.getElementById('login-submit').addEventListener('click', () => {
     };
 
     apiFetch('POST', 'auth/login', null, body)
-    .then(data => {
-        storeToken(data['token']);
-    });
+        .then((data) => {
+            storeToken(data['userId'], data['token']);
+        })
+        .catch((errorMsg) => {
+            displayErrorMsg(errorMsg);
+        });
 })

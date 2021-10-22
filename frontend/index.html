@@ -12,6 +12,17 @@
 
 <body>
   <div id="start-page" class="start-page">
+    <div class="errorMsg-overlay" id="errorMsg-popup">
+      <div class="error-popup">
+        <div class="x-close">
+          <button id="x-close">X</button>
+        </div>
+        <div class="error-message" id="error-message"></div>
+        <div class="center">
+          <button type="button" id="errorMsg-close">Close</button>
+        </div>
+      </div>
+    </div>
     <div class="start-container">
       <div class="start-logo">
         <img src="logo.png" alt="Slackr Logo">
@@ -30,7 +41,7 @@
         </div>
         <p style="text-align: center">Not a member? <span class="a" id="switch-register">Sign Up</span></p>
       </div>
-      <div id="register" hidden>
+      <div id="register" style="display: none">
         <div class="input-box">
           <label for="register-email">Email:</label>
           <input type="text" id="register-email" name="register-email">

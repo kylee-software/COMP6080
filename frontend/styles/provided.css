@@ -11,14 +11,51 @@ html, body {
     font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+.errorMsg-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    display: none;
+}
 .start-page {
     width:100%;
     height: 100%;
 }
 
+.error-popup {
+    height: fit-content;
+    width: 200px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    background-color: white;
+    border: 2px solid #006E8A;
+    padding: 10px;
+}
+
+.x-close {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    height: fit-content;
+    margin-bottom: 10px;
+}
+
+.error-message {
+    width: 100%;
+    height: fit-content;
+    margin-bottom: 20px;
+    overflow-wrap: break-word;
+    hyphens: manual;
+}
+
 .start-container {
     position: relative;
     margin: auto auto 20px auto;
+    padding-top: 60px;
     max-width: 400px;
     width: 100%;
 }
@@ -27,7 +64,7 @@ html, body {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    margin: 60px 0 20px 0;
+    margin: 0 0 20px 0;
     height: 80px;
     width: 100%;
 }
