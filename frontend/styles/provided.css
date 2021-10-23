@@ -129,6 +129,7 @@ span.a:hover {
     height: 30px;
     width: 100%;
     background-color: #006E8A;
+    color: white;
     font-weight: bold;
     padding: 10px;
     box-sizing: border-box;
@@ -159,7 +160,6 @@ span.a:hover {
     padding: 10px;
     text-overflow: ellipsis;
     font-size: 8px;
-    display: none;
 }
 
 .main {

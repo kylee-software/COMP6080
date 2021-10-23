@@ -32,7 +32,6 @@ const apiFetch = (method, path, token, body) => {
     const requestInfo = {
         method: method,
         headers: {'Content-Type': 'application/json'},
-        // body: JSON.stringify(body),
     };
 
     if (token !== null) {
@@ -42,8 +41,6 @@ const apiFetch = (method, path, token, body) => {
     if (body !== null) {
         requestInfo.headers['body'] = JSON.stringify(body);
     }
-
-    console.log(requestInfo);
 
     return new Promise((resolve, reject) => {
         fetch(`http://localhost:5005/${path}`, requestInfo)
@@ -63,7 +60,8 @@ const apiFetch = (method, path, token, body) => {
 }
 
 let TOKEN = null;
-const storeToken = (token) => TOKEN = token;
+let USER_ID = null;
+// const storeToken = (token) => TOKEN = token;
 // const storeToken = (userId, token) => localStorage.setItem(userId, token);
 // const removeToken = (useId) => localStorage.removeItem(useId);
 
@@ -85,8 +83,8 @@ document.getElementById('register-submit').addEventListener('click', () => {
 
         apiFetch('POST', 'auth/register', null, body)
             .then((data) => {
-                console.log(data['token']);
-                storeToken(data['token']);
+                TOKEN = data['token'];
+                USER_ID = data['userId']
                 document.getElementById('main-page').style.display = 'grid';
                 document.getElementById('start-page').style.display = 'none';
             })
@@ -104,8 +102,8 @@ document.getElementById('login-submit').addEventListener('click', () => {
 
     apiFetch('POST', 'auth/login', null, body)
         .then((data) => {
-            console.log(data['token']);
-            storeToken(data['token']);
+            TOKEN = data['token'];
+            USER_ID = data['userId']
             document.getElementById('main-page').style.display = 'grid';
             document.getElementById('start-page').style.display = 'none';
         })
@@ -114,10 +112,46 @@ document.getElementById('login-submit').addEventListener('click', () => {
         });
 })
 
+
+const createChannels = (option, list) => {
+    let channelsContainer = null;
+    if (option === 'private') {
+        channelsContainer = document.getElementById('private-channelLst');
+    } else {
+        channelsContainer = document.getElementById('public-channelLst');
+    }
+
+    for (const channel in list) {
+        let newChannel = document.getElementById('channel-item').cloneNode(true);
+        newChannel.id = channel['id'];
+        newChannel.innerText = channel['name'];
+        newChannel.style.display = 'block';
+        channelsContainer.appendChild(newChannel);
+        console.log(newChannel);
+    }
+}
 const getChannels = (token) => {
     apiFetch('GET', 'channel', token, null)
         .then((data) => {
-            console.log(data);
+            const channels = data['channels'];
+            let publicChannels = [];
+            let privateChannels = [];
+
+            for (const channel in channels) {
+                if (channel['private'] === false) {
+                    publicChannels.push(channel);
+                } else if (channel['private'] === true && channel['members'].includes(USER_ID)) {
+                    privateChannels.push(channel);
+                }
+            }
+
+            if (publicChannels !== null) {
+                createChannels('public', publicChannels);
+            }
+            if (privateChannels !== null) {
+                createChannels('private', privateChannels);
+            }
+
         })
         .catch((errorMsg) => {
             console.log(errorMsg);
