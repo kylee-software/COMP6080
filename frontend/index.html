@@ -12,8 +12,8 @@
 
 <body>
   <div id="start-page" class="start-page">
-    <div class="errorMsg-overlay" id="errorMsg-popup">
-      <div class="error-popup">
+    <div class="popup-overlay" id="errorMsg-popup">
+      <div class="popup">
         <div class="x-close">
           <button id="x-close">X</button>
         </div>
@@ -25,7 +25,7 @@
     </div>
     <div class="start-container">
       <div class="start-logo">
-        <img src="logo.png" alt="Slackr Logo">
+        <img src="images/logo.png" alt="Slackr Logo">
       </div>
       <div id="login">
         <div class="input-box">
@@ -67,12 +67,54 @@
     <div class="footer">footer</div>
   </div>
   <div id="main-page" class="main-container">
+    <div class="popup-overlay" id="create-channel-popup">
+      <div class="popup">
+        <div class="x-close">
+          <button id="create-channel-close">X</button>
+        </div>
+        <div class="create-channel-box">
+          <div class="input-box">
+            <label for="create-channel-name">Channel Name:</label>
+            <input type="text" id="create-channel-name" name="Channel Name">
+          </div>
+          <div class="input-box">
+            <label for="create-channel-private">Private:</label>
+            <select id="create-channel-private" name="Private Selector">
+              <option value="yes">yes</option>
+              <option value="no">no</option>
+            </select>
+          </div>
+          <div class="input-box">
+            <label for="create-channel-description">Description:</label>
+            <textarea id="create-channel-description" name="confirm-pass">
+            </textarea>
+          </div>
+          <div class="center">
+            <button type="submit" id="create-channel">Create Channel</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="header">Header</div>
     <div class="sidebar">
-      <div class="sidebar-items" id="private-channels">Private Channels</div>
-      <div class="channels-container" id="private-channelLst"></div>
-      <div class="sidebar-items" id="public-channels">Public Channels</div>
-      <div class="channels-container" id="public-channelLst"></div>
+      <div class="sidebar-items">
+        <div class="channel-label" id="private-channels">Private Channels</div>
+        <div class="icon" id="add-private-channel">
+          <img src="images/plus-lg.svg" alt="Add Channel Button">
+        </div>
+      </div>
+      <div class="channels-container" id="private-channelLst">
+        <div class="channel"> Private Channel</div>
+      </div>
+      <div class="sidebar-items">
+        <div class="channel-label" id="public-channels">Public Channels</div>
+        <div class="icon" id="add-public-channel">
+          <img src="images/plus-lg.svg" alt="Add Channel Button">
+        </div>
+      </div>
+      <div class="channels-container" id="public-channelLst">
+        <div class="channel"> Public Channel</div>
+      </div>
       <div class="channel" id="channel-item"></div>
     </div>
     <div class="main">Main</div>

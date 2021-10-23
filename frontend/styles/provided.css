@@ -11,7 +11,7 @@ html, body {
     font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.errorMsg-overlay {
+.popup-overlay {
     position: fixed;
     width: 100%;
     height: 100%;
@@ -24,9 +24,9 @@ html, body {
     height: 100%;
 }
 
-.error-popup {
+.popup {
     height: fit-content;
-    width: 200px;
+    width: fit-content;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -70,11 +70,12 @@ html, body {
 }
 
 .input-box {
-    margin: auto auto 20px;
-    padding: 0 80px;
+    margin: auto auto 20px auto;
+    padding: 0 20px;
+    max-width: 250px;
 }
 
-input {
+input, textarea {
     display: block;
     width: 100%;
     height: 20px;
@@ -102,7 +103,7 @@ span.a:hover {
     display: none;
     grid-gap: 10px;
     grid-template-columns: 1fr 8fr;
-    grid-template-rows: 40px 1fr;
+    grid-template-rows: 50px 1fr;
     height: 100%;
     gap: 0;
     grid-template-areas:
@@ -125,7 +126,10 @@ span.a:hover {
 }
 
 .sidebar-items {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
     height: 30px;
     width: 100%;
     background-color: #006E8A;
@@ -138,8 +142,23 @@ span.a:hover {
     cursor: pointer;
 }
 
-.sidebar-items:hover {
-    background-color: #E8C195;
+/*.sidebar-items:hover {*/
+/*    background-color: #E8C195;*/
+/*}*/
+
+.icon {
+    width: fit-content;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+}
+.icon:hover {
+    background-color: #fafafa;
+}
+
+.channel-label {
+    width: 90%
 }
 
 .channels-container {
@@ -152,14 +171,21 @@ span.a:hover {
 
 .channel {
     /*display: block;*/
+    display: none;
     width: 100%;
     height: 30px;
     font-weight: bold;
-    color: #fafafa;
+    color: black;
     text-align: center;
     padding: 10px;
     text-overflow: ellipsis;
     font-size: 8px;
+    background-color: white;
+}
+
+.create-channel-box {
+    display: block;
+    width: fit-content;
 }
 
 .main {

@@ -61,6 +61,9 @@ const apiFetch = (method, path, token, body) => {
 
 let TOKEN = null;
 let USER_ID = null;
+let DEFAULT_CHANNEL = null;
+let PRIVATE_CHANNELS = [];
+let PUBLIC_CHANNELS = [];
 // const storeToken = (token) => TOKEN = token;
 // const storeToken = (userId, token) => localStorage.setItem(userId, token);
 // const removeToken = (useId) => localStorage.removeItem(useId);
@@ -112,22 +115,41 @@ document.getElementById('login-submit').addEventListener('click', () => {
         });
 })
 
+const createChannelLabel = (option, channelInfo) => {
+    console.log(channelInfo);
+    const channelName = channelInfo['id'];
+    const channelId = channelInfo['name'];
 
-const createChannels = (option, list) => {
-    let channelsContainer = null;
-    if (option === 'private') {
-        channelsContainer = document.getElementById('private-channelLst');
-    } else {
-        channelsContainer = document.getElementById('public-channelLst');
-    }
+    const channelsContainer = document.getElementById(`${option}-channelLst`);
+    // if (option === 'private') {
+    //     channelsContainer = document.getElementById('private-channelLst');
+    // } else {
+    //     channelsContainer = document.getElementById('public-channelLst');
+    // }
+
+    let newChannel = document.getElementById('channel-item').cloneNode(true);
+    newChannel.id = channelId;
+    newChannel.innerText = channelName;
+    newChannel.style.display = 'block';
+    channelsContainer.appendChild(newChannel);
+    console.log(newChannel);
+}
+const displayChannels = (option, list) => {
+    // let channelsContainer = null;
+    // if (option === 'private') {
+    //     channelsContainer = document.getElementById('private-channelLst');
+    // } else {
+    //     channelsContainer = document.getElementById('public-channelLst');
+    // }
 
     for (const channel in list) {
-        let newChannel = document.getElementById('channel-item').cloneNode(true);
-        newChannel.id = channel['id'];
-        newChannel.innerText = channel['name'];
-        newChannel.style.display = 'block';
-        channelsContainer.appendChild(newChannel);
-        console.log(newChannel);
+        createChannelLabel(option, channel);
+        // let newChannel = document.getElementById('channel-item').cloneNode(true);
+        // newChannel.id = channel['id'];
+        // newChannel.innerText = channel['name'];
+        // newChannel.style.display = 'block';
+        // channelsContainer.appendChild(newChannel);
+        // console.log(newChannel);
     }
 }
 const getChannels = (token) => {
@@ -146,10 +168,12 @@ const getChannels = (token) => {
             }
 
             if (publicChannels !== null) {
-                createChannels('public', publicChannels);
+                displayChannels('public', publicChannels);
+                PUBLIC_CHANNELS.push(publicChannels);
             }
             if (privateChannels !== null) {
-                createChannels('private', privateChannels);
+                displayChannels('private', privateChannels);
+                PRIVATE_CHANNELS.push(privateChannels);
             }
 
         })
@@ -160,10 +184,54 @@ const getChannels = (token) => {
 
 document.getElementById('public-channels').addEventListener('click', () => {
     getChannels(TOKEN);
-    document.getElementById('public-channelLst').style.display = 'flex';
+    display('public-channelLst', 'flex');
 })
 
 document.getElementById('private-channels').addEventListener('click', () => {
     getChannels(TOKEN);
-    document.getElementById('private-channelLst').style.display = 'flex';
+    display('private-channelLst', 'flex');
 })
+
+document.getElementById('add-private-channel').addEventListener('mousedown', () => {
+    display('create-channel-popup', 'block');
+})
+
+document.getElementById('add-public-channel').addEventListener('mousedown', () => {
+    display('create-channel-popup', 'block');
+})
+
+//
+// // Add event listeners to every channel
+// const channels = [...(document.getElementById('public-channelLst').children), ...(document.getElementById('private-channelLst').children)];
+//
+// for (const channel in channels) {
+//     channel.addEventListener('click', () => {
+//         console.log(channel);
+//     })
+// }
+
+// const createChannel = () => {
+//     const name = document.getElementById('create-channel-name').value;
+//     let option = document.getElementById('create-channel-private').value;
+//     const description = document.getElementById('create-channel-description').value;
+//
+//     const body = {
+//         'name': name,
+//         'option': (option === true) ? true:false, // change later
+//         'description': description,
+//     }
+//
+//     apiFetch('POST', 'channel', TOKEN, body)
+//         .then ((data) => {
+//             option = (option == true) ? 'private':'public';
+//             const channelInfo = {
+//                 'name': name,
+//                 'id': data['channelId'],
+//             }
+//             createChannelLabel(option, channelInfo);
+//         })
+//         .catch((errorMsg) => {
+//             displayErrorMsg(errorMsg);
+//         })
+// }
+
