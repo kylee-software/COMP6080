@@ -32,12 +32,18 @@ const apiFetch = (method, path, token, body) => {
     const requestInfo = {
         method: method,
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body),
+        // body: JSON.stringify(body),
     };
 
     if (token !== null) {
         requestInfo.headers['Authorization'] = `Bearer ${token}`;
     }
+
+    if (body !== null) {
+        requestInfo.headers['body'] = JSON.stringify(body);
+    }
+
+    console.log(requestInfo);
 
     return new Promise((resolve, reject) => {
         fetch(`http://localhost:5005/${path}`, requestInfo)
@@ -56,8 +62,10 @@ const apiFetch = (method, path, token, body) => {
     });
 }
 
-const storeToken = (userId, token) => localStorage.setItem(userId, token);
-const removeToken = (useId) => localStorage.removeItem(useId);
+let TOKEN = null;
+const storeToken = (token) => TOKEN = token;
+// const storeToken = (userId, token) => localStorage.setItem(userId, token);
+// const removeToken = (useId) => localStorage.removeItem(useId);
 
 document.getElementById('register-submit').addEventListener('click', () => {
     const email = document.getElementById('register-email').value;
@@ -77,7 +85,10 @@ document.getElementById('register-submit').addEventListener('click', () => {
 
         apiFetch('POST', 'auth/register', null, body)
             .then((data) => {
-                storeToken(data['userId'], data['token'])
+                console.log(data['token']);
+                storeToken(data['token']);
+                document.getElementById('main-page').style.display = 'grid';
+                document.getElementById('start-page').style.display = 'none';
             })
             .catch((errorMsg) => displayErrorMsg(errorMsg));
     }
@@ -93,9 +104,32 @@ document.getElementById('login-submit').addEventListener('click', () => {
 
     apiFetch('POST', 'auth/login', null, body)
         .then((data) => {
-            storeToken(data['userId'], data['token']);
+            console.log(data['token']);
+            storeToken(data['token']);
+            document.getElementById('main-page').style.display = 'grid';
+            document.getElementById('start-page').style.display = 'none';
         })
         .catch((errorMsg) => {
             displayErrorMsg(errorMsg);
         });
+})
+
+const getChannels = (token) => {
+    apiFetch('GET', 'channel', token, null)
+        .then((data) => {
+            console.log(data);
+        })
+        .catch((errorMsg) => {
+            console.log(errorMsg);
+        });
+}
+
+document.getElementById('public-channels').addEventListener('click', () => {
+    getChannels(TOKEN);
+    document.getElementById('public-channelLst').style.display = 'flex';
+})
+
+document.getElementById('private-channels').addEventListener('click', () => {
+    getChannels(TOKEN);
+    document.getElementById('private-channelLst').style.display = 'flex';
 })
