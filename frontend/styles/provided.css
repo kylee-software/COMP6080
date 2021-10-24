@@ -18,6 +18,7 @@ html, body {
     background-color: rgba(0,0,0,0.5);
     z-index: 2;
     display: none;
+    /*display: block;*/
 }
 .start-page {
     width:100%;
@@ -75,10 +76,15 @@ html, body {
     max-width: 250px;
 }
 
-input, textarea {
+input, select, option {
     display: block;
     width: 100%;
     height: 20px;
+}
+
+textarea {
+    display: block;
+    width: 100%;
 }
 
 .center {
@@ -142,9 +148,9 @@ span.a:hover {
     cursor: pointer;
 }
 
-/*.sidebar-items:hover {*/
-/*    background-color: #E8C195;*/
-/*}*/
+.sidebar-items:hover {
+    background-color: #E8C195;
+}
 
 .icon {
     width: fit-content;
@@ -190,8 +196,191 @@ span.a:hover {
 
 .main {
     grid-area: main;
+    display: grid;
+    grid-template-rows: 40px 3fr 1fr;
+    background-color: #fafafa;
+    margin: 0 20px;
+    box-sizing: border-box;
+}
+
+.channel-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid darkgrey;
+    margin-top: 10px;
+}
+
+li {
+    display: inline-flex;
+    margin-left: 10px;
+    gap: 5px;
+}
+
+li:hover {
+    background-color: beige;
+    cursor: pointer;
+}
+
+.channel-messages-container {
+    display: block;
+    width: 100%;
+    background-color: #FFD4A3;
+}
+
+.channel-text-container {
+    display: block;
+    background-color: #E8C195;
+    width: 100%;
+}
+
+.channel-popup {
+    height: 300px;
+    width: 300px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    background-color: white;
+    border: 2px solid #006E8A;
+    padding: 20px;
+}
+
+.channel-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    border-bottom: 1px solid darkgrey;
+    height: fit-content;
+    padding-bottom: 10px;
+}
+
+.channel-pop-body {
+    display: flex;
+    flex-direction: column;
+    height: 230px;
+    overflow: auto;
+    margin-top: 10px;
+    box-sizing: border-box;
     background-color: #E8C195;
 }
+
+.member-info-box {
+    display: none;
+    /*display: flex;*/
+    justify-content: flex-start;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+    padding-left: 10px;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.member-info-box:hover {
+    cursor: pointer;
+    background-color: beige;
+}
+
+.profile-pic {
+    vertical-align: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+}
+
+.about-container {
+    /*display: none;*/
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.about-info-box {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+    width: 100%;
+    height: fit-content;
+    overflow-wrap: break-word;
+    hyphens: manual;
+}
+
+.name-hide {
+    display: none;
+}
+
+.description-hide {
+    display: none;
+    float: right;
+}
+
+.description-box {
+    display: block;
+    width: 100%;
+    height: fit-content;
+    min-height: 50px;
+    background-color: #fafafa;
+    border: 1px solid black;
+    margin-bottom: 5px;
+}
+
+.description-box:hover {
+    background-color: #FFD4A3;;
+}
+
+.description-box:hover + .description-hide {
+    display: block;
+}
+
+.description-box:focus {
+    background-color: #FFD4A3;;
+}
+
+.description-box:focus + .description-hide {
+    display: block;
+}
+
+.channel-name-container {
+    display: flex;
+    width: fit-content;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+    height: 100%;
+}
+.channel-name {
+    max-width: 300px;
+    min-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    outline: none;
+    border: none;
+    background-color: #fafafa;
+}
+
+.channel-name:hover {
+    border-bottom: 1px solid #FFD4A3;
+}
+.channel-name:hover + .name-hide {
+    display: block;
+}
+
+.channel-name:focus {
+    border-bottom: 1px solid #E8C195;
+}
+
+.channel-name:focus + .name-hide {
+    display: block;
+}
+
 .footer {
     background-color: #FFD4A3;
     position: absolute;
@@ -200,4 +389,26 @@ span.a:hover {
     width: 100%;
     padding: 5px;
     box-sizing: border-box;
+}
+
+/** custom scrool bar */
+/* Track width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #fafafa;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #FFD4A3;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #E8C195;
 }

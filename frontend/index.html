@@ -78,16 +78,15 @@
             <input type="text" id="create-channel-name" name="Channel Name">
           </div>
           <div class="input-box">
-            <label for="create-channel-private">Private:</label>
-            <select id="create-channel-private" name="Private Selector">
-              <option value="yes">yes</option>
-              <option value="no">no</option>
+            <label for="create-channel-type">Channel Type:</label>
+            <select id="create-channel-type" name="Channel Type">
+              <option value="private">private</option>
+              <option value="public">public</option>
             </select>
           </div>
           <div class="input-box">
             <label for="create-channel-description">Description:</label>
-            <textarea id="create-channel-description" name="confirm-pass">
-            </textarea>
+            <textarea id="create-channel-description" name="confirm-pass"></textarea>
           </div>
           <div class="center">
             <button type="submit" id="create-channel">Create Channel</button>
@@ -95,29 +94,74 @@
         </div>
       </div>
     </div>
+    <div class="popup-overlay" id="channel-popup">
+      <div class="channel-popup">
+        <div class="x-close">
+          <button id="channel-popup-close">X</button>
+        </div>
+        <div class="channel-popup-header">
+          <span id="channel-popup-title">Something</span>
+          <img src="images/invite.svg" id="channel-invite" style="display: none">
+        </div>
+        <div class="channel-pop-body" id="channel-popup-body">
+          <div class="member-info-box" id="member-info-box">
+            <img src="images/logo.png" class="profile-pic" id="member-profile">
+            <p id="member-name">Kylee</p>
+          </div>
+          <div class="about-container" id="about-container">
+            <div class="about-info-box">
+              <span>Channel Creator:</span><span id="channel-creator">Kyleee</span>
+            </div>
+            <div class="about-info-box">
+              <span>Time Created:</span><span id="channel-create-date">Jan-1</span>
+            </div>
+            <div>
+              <div class="about-info-box">
+                <span>Description:</span>
+                <img src="images/edit.svg" class="description-hide">
+              </div>
+              <span role="textbox" contenteditable="true" class="description-box">hii</span>
+              <img src="images/edit.svg" class="description-hide">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="header">Header</div>
     <div class="sidebar">
       <div class="sidebar-items">
-        <div class="channel-label" id="private-channels">Private Channels</div>
+        <div class="channel-label" id="private-channel-label">Private Channels</div>
         <div class="icon" id="add-private-channel">
           <img src="images/plus-lg.svg" alt="Add Channel Button">
         </div>
       </div>
       <div class="channels-container" id="private-channelLst">
-        <div class="channel"> Private Channel</div>
+        <div class="channel" id="channel-item">Private Channel</div>
       </div>
       <div class="sidebar-items">
-        <div class="channel-label" id="public-channels">Public Channels</div>
+        <div class="channel-label" id="public-channel-label">Public Channels</div>
         <div class="icon" id="add-public-channel">
           <img src="images/plus-lg.svg" alt="Add Channel Button">
         </div>
       </div>
       <div class="channels-container" id="public-channelLst">
-        <div class="channel"> Public Channel</div>
+        <div class="channel">Private Channel</div>
       </div>
-      <div class="channel" id="channel-item"></div>
     </div>
-    <div class="main">Main</div>
+    <div class="main">
+      <div class="channel-header">
+        <div class="channel-name-container">
+          <span class="channel-name" role="textbox" contenteditable="true" id="channel-name">Channel Name</span>
+          <img src="images/edit.svg" class="name-hide">
+        </div>
+        <ul>
+          <li><img src="images/channel-info.svg" alt="channel info">About</li>
+          <li><img src="images/channel-members.svg" alt="channel-members">Members 0</li>
+        </ul>
+      </div>
+      <div class="channel-messages-container">messages container</div>
+      <div class="channel-text-container">text container</div>
+    </div>
   </div>
   <script type="module" src="src/main.js"></script>
 </body>
