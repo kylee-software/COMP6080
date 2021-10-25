@@ -76,10 +76,11 @@
           </div>
           <div class="input-box">
             <label for="create-channel-type">Channel Type:</label>
-            <select id="create-channel-type" name="Channel Type">
-              <option value="private">private</option>
-              <option value="public">public</option>
-            </select>
+            <input type="text" id="create-channel-type" name="Channel Type" value="private" disabled>
+<!--            <select id="create-channel-type" name="Channel Type">-->
+<!--              <option value="private">private</option>-->
+<!--              <option value="public">public</option>-->
+<!--            </select>-->
           </div>
           <div class="input-box">
             <label for="create-channel-description">Description:</label>
@@ -91,19 +92,21 @@
         </div>
       </div>
     </div>
-    <div class="popup-overlay" id="channel-popup">
+    <div class="popup-overlay" id="channel-detail-popup">
       <div class="channel-popup">
         <div class="x-close">
-          <button id="channel-popup-close">X</button>
+          <button id="channel-detail-popup-close">X</button>
         </div>
         <div class="channel-popup-header">
-          <span id="channel-popup-title">Something</span>
+          <span id="channel-name-popup"></span>
           <img src="images/invite.svg" id="channel-invite" style="display: none">
         </div>
         <div class="channel-pop-body" id="channel-popup-body">
-          <div class="member-info-box" id="member-info-box">
-            <img src="images/logo.png" class="profile-pic" id="member-profile">
-            <p id="member-name">Kylee</p>
+          <div id="members-container">
+            <div class="member-info-box" id="member-info-box">
+              <img src="images/logo.png" class="profile-pic" id="member-profile">
+              <p id="member-name">Kylee</p>
+            </div>
           </div>
           <div class="about-container" id="about-container">
             <div class="about-info-box">
@@ -134,7 +137,6 @@
       </div>
       <div class="channels-container" id="private-channelLst">
         <button class="channel" id="channel-item">Private Channel</button>
-<!--        <div class="channel" id="channel-item">Private Channel</div>-->
       </div>
       <div class="sidebar-items">
         <div class="channel-label" id="public-channel-label">Public Channels</div>
@@ -149,12 +151,12 @@
     <div class="main">
       <div class="channel-header">
         <div class="channel-name-container">
-          <span class="channel-name" role="textbox" contenteditable="true" id="channel-name">Channel Name</span>
+          <span class="channel-name" role="textbox" contenteditable="true" id="channel-name-edit">Channel Name</span>
           <img src="images/edit.svg" class="name-hide">
         </div>
         <ul>
-          <li><img src="images/channel-info.svg" alt="channel info">About</li>
-          <li><img src="images/channel-members.svg" alt="channel-members">Members 0</li>
+          <li id="channel-about"><img src="images/channel-info.svg" alt="channel info">About</li>
+          <li id="channel-members"><img src="images/channel-members.svg" alt="channel-members">Members 0</li>
         </ul>
       </div>
       <div class="channel-messages-container">messages container</div>

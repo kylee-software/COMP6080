@@ -5,13 +5,9 @@ import {fileToDataUrl} from './helpers.js';
 
 let TOKEN = null;
 let USER_ID = null;
-let DEFAULT_CHANNEL = null;
-let PRIVATE_CHANNELS = [];
-let PUBLIC_CHANNELS = [];
+let LAST_VISITED_CHANNEL = null;
 // const storeToken = (token) => TOKEN = token;
 // const storeToken = (userId, token) => localStorage.setItem(userId, token);
-// const removeToken = (useId) => localStorage.removeItem(useId);
-
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                    Helper Functions                                       │ */
@@ -70,6 +66,7 @@ document.getElementById('switch-login').addEventListener('click', () => {
 /* └────────────────────────────────────────────────────────────────┘ */
 
 document.getElementById('login-submit').addEventListener('click', () => {
+
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     const body = {
@@ -136,6 +133,14 @@ document.getElementById('errorMsg-popup-close').addEventListener('click', () => 
 /* │                     Viewing a List of Channels                 │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+document.getElementById('private-channel-label').addEventListener('click', () => {
+    displayChannels('private');
+})
+
+document.getElementById('public-channel-label').addEventListener('click', () => {
+    displayChannels('public');
+})
+
 const displayChannels = (type) => {
     const channelList = document.getElementById(`${type}-channelLst`);
     if (channelList.style.display === 'flex') {
@@ -145,23 +150,117 @@ const displayChannels = (type) => {
     }
 };
 
-document.getElementById('private-channel-label').addEventListener('click', () => {
-    displayChannels('private');
-})
-
-document.getElementById('public-channel-label').addEventListener('click', () => {
-    displayChannels('public');
-})
-
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                      Creating a New Channel                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
+
+document.getElementById('add-private-channel').addEventListener('click', () => {
+    document.getElementById('create-channel-type').value = 'private';
+    display('create-channel-popup', 'block');
+})
+
+document.getElementById('add-public-channel').addEventListener('click', () => {
+    document.getElementById('create-channel-type').value = 'public';
+    display('create-channel-popup', 'block');
+})
+
+document.getElementById('create-channel').addEventListener('click', () => {
+    const name = document.getElementById('create-channel-name').value;
+    const channelType = document.getElementById('create-channel-type').value;
+    const description = document.getElementById('create-channel-description').value;
+
+    const body = {
+        'name': name,
+        'private': (channelType === 'private'),
+        'description': description,
+    }
+
+    apiFetch('POST', 'channel', TOKEN, body)
+        .then ((data) => {
+            const channelId = data.channelId;
+            createChannelLabel(channelType, name, channelId);
+            display('create-channel-popup', 'none');
+        })
+        .catch((errorMsg) => {
+            displayErrorMsg(errorMsg);
+        });
+})
+
+const createChannelLabel = (type, channelName, channelId) => {
+    const channelLst = document.getElementById(`${type}-channelLst`);
+    let newChannel = document.getElementById('channel-item').cloneNode(true);
+    newChannel.id = channelId;
+    newChannel.innerText = channelName;
+    channelLst.appendChild(newChannel);
+    display(channelId, 'block');
+    display(`${type}-channelLst`, 'flex');
+};
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │               Viewing and Editing Channel Details              │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+document.getElementById('private-channelLst').addEventListener('click', (event) => {
+    const currentChannel = event.target;
+    enterChannel(currentChannel);
+})
+
+document.getElementById('public-channelLst').addEventListener('click', (event) => {
+    const currentChannel = event.target;
+    enterChannel(currentChannel);
+})
+
+// Changi channel name
+document.getElementById('channel-name-edit').addEventListener('blur', () => {
+    const channelName = document.getElementById('channel-name-edit').innerText;
+    updateChanelDetails(channelName, null);
+})
+
+// View the basic info of the channel
+document.getElementById('channel-about').addEventListener('click', () => {
+    display('members-container', 'none');
+    display('about-container', 'flex');
+    display('channel-detail-popup', 'block');
+})
+
+// View all the members of the channel
+document.getElementById('channel-members').addEventListener('click', () => {
+    display('members-container', 'flex');
+    display('about-container', 'none');
+    display('channel-detail-popup', 'block');
+})
+
+const enterChannel = (targetChannel) => {
+    LAST_VISITED_CHANNEL = targetChannel.id;
+    const channelInfo = getChannelDetails(LAST_VISITED_CHANNEL);
+    document.getElementById('channel-name-edit').innerText = channelInfo['name'];
+    document.getElementById('channel-members').innerText = `Members ${channelInfo['members'].length}`;
+}
+
+const getChannelDetails = (channelId) => {
+    const data = null;
+    apiFetch('GET', `channel/${parseInt(LAST_VISITED_CHANNEL)}`, TOKEN, null)
+        .then((data) => {
+            return data;
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+
+    return data;
+}
+const updateChanelDetails = (name, description) => {
+    const body = {
+        'name': name,
+        'description': description,
+    };
+
+    apiFetch('PUT', `channel/${parseInt(LAST_VISITED_CHANNEL)}`, TOKEN, body)
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+}
+
+document.getElementById('channel-detail-popup-close').addEventListener('click', () => {
+    display('channel-detail-popup', 'none');
+})
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                     Milestone 3                                           │ */
@@ -267,131 +366,18 @@ document.getElementById('public-channel-label').addEventListener('click', () => 
 /* │                      Fragment Based URL Routing                │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-
-// const createChannelLabel = (option, channelInfo) => {
-//     console.log(channelInfo);
-//     const channelName = channelInfo['channelName'];
-//     const channelId = channelInfo['channelId'];
-//
-//     const channelsContainer = document.getElementById(`${option}-channelLst`);
-//     let newChannel = document.getElementById('channel-item').cloneNode(true);
-//     newChannel.id = channelId;
-//     newChannel.innerText = channelName;
-//     newChannel.style.display = 'block';
-//     channelsContainer.appendChild(newChannel);
-//     console.log(newChannel);
-// }
-// const displayChannels = (option, list) => {
-//
-//     for (const channel in list) {
-//         const channelInfo = {
-//             'channelName': channel['name'],
-//             'channelId': channel['id'],
-//         }
-//         createChannelLabel(option, channelInfo);
-//     }
-// }
-// const getChannels = (token) => {
-//     apiFetch('GET', 'channel', token, null)
-//         .then((data) => {
-//             const channels = data['channels'];
-//             let publicChannels = [];
-//             let privateChannels = [];
-//
-//             for (const channel in channels) {
-//                 if (channel['private'] === false) {
-//                     publicChannels.push(channel);
-//                 } else if (channel['private'] === true && channel['members'].includes(USER_ID)) {
-//                     privateChannels.push(channel);
-//                 }
-//             }
-//
-//             if (publicChannels !== null) {
-//                 displayChannels('public', publicChannels);
-//                 PUBLIC_CHANNELS.push(publicChannels);
-//             }
-//             if (privateChannels !== null) {
-//                 displayChannels('private', privateChannels);
-//                 PRIVATE_CHANNELS.push(privateChannels);
-//             }
-//
-//         })
-//         .catch((errorMsg) => {
-//             console.log(errorMsg);
-//         });
-// }
-//
-//
-// // Show channels
-// const publicChannelLabel = document.getElementById('public-channel-label')
-// const publicChannelLst = document.getElementById('public-channelLst');
-// const privateChannelLabel = document.getElementById('private-channel-label')
-// const privateChannelLst = document.getElementById('private-channelLst');
-//
-// publicChannelLabel.addEventListener('click', () => {
-//     if (publicChannelLst.style.display === 'none') {
-//         getChannels(TOKEN);
-//         display('public-channelLst', 'flex');
-//     } else {
-//         display('public-channelLst', 'none')
-//     }
-// })
-//
-// privateChannelLabel.addEventListener('click', () => {
-//     if (privateChannelLst.style.display === 'none') {
-//         getChannels(TOKEN);
-//         display('private-channelLst', 'flex');
-//     } else {
-//         display('private-channelLst', 'none')
-//     }
-// })
-//
-// document.getElementById('add-private-channel').addEventListener('click', () => {
-//     display('create-channel-popup', 'block');
-// })
-//
-// document.getElementById('add-public-channel').addEventListener('click', () => {
-//     display('create-channel-popup', 'block');
-// })
-//
-// document.getElementById('create-channel-close').addEventListener('click', () => {
-//     display('create-channel-popup', 'none');
-// })
-//
-document.getElementById('create-channel').addEventListener('click', () => {
-    const name = document.getElementById('create-channel-name').value;
-    const channelType = document.getElementById('create-channel-type').value;
-    const description = document.getElementById('create-channel-description').value;
-
-    const body = {
-        'name': name,
-        'private': (channelType === 'private'),
-        'description': description,
-    }
-
-    apiFetch('POST', 'channel', TOKEN, body)
-        .then ((data) => {
-            const channelInfo = {
-                'channelName': name,
-                'channelId': data['channelId'],
-            }
-            createChannelLabel(channelType, channelInfo);
-            display('create-channel-popup', 'none');
-        })
-        .catch((errorMsg) => {
-            displayErrorMsg(errorMsg);
-        })
-})
 //
 // // Add event listeners to every channel
 // document.getElementById('private-channelLst').addEventListener('click', (e) => {
 //     console.log(e.target);
 // })
 //
-// document.getElementById('channel-popup-close').addEventListener('click', () => {
-//     display('channel-popup', 'none');
-// })
-// a function to refresh channel screen
+
+// a function to refresh channel screen --> do this before the user logging out
+// 1. map the userId to
+const node = document.getElementById('create-channel-popup').cloneNode(true);
+console.log(node);
+console.log(document.getElementById('create-channel-popup'));
 
 // update channel name when the text box is blured
 
