@@ -1,6 +1,4 @@
-import {BACKEND_PORT} from './config.js';
 // A helper you may want to use when uploading new images to the server.
-import {fileToDataUrl} from './helpers.js';
 
 
 let TOKEN = null;
@@ -178,6 +176,7 @@ document.getElementById('create-channel').addEventListener('click', () => {
     apiFetch('POST', 'channel', TOKEN, body)
         .then ((data) => {
             const channelId = data.channelId;
+            LAST_VISITED_CHANNEL = channelId;
             createChannelLabel(channelType, name, channelId);
             display('create-channel-popup', 'none');
         })
@@ -202,16 +201,16 @@ const createChannelLabel = (type, channelName, channelId) => {
 /* └────────────────────────────────────────────────────────────────┘ */
 
 document.getElementById('private-channelLst').addEventListener('click', (event) => {
-    const currentChannel = event.target;
+    const currentChannel = event.target.id;
     enterChannel(currentChannel);
 })
 
 document.getElementById('public-channelLst').addEventListener('click', (event) => {
-    const currentChannel = event.target;
+    const currentChannel = event.target.id;
     enterChannel(currentChannel);
 })
 
-// Changi channel name
+// Change channel name
 document.getElementById('channel-name-edit').addEventListener('blur', () => {
     const channelName = document.getElementById('channel-name-edit').innerText;
     updateChanelDetails(channelName, null);
@@ -219,9 +218,26 @@ document.getElementById('channel-name-edit').addEventListener('blur', () => {
 
 // View the basic info of the channel
 document.getElementById('channel-about').addEventListener('click', () => {
-    display('members-container', 'none');
-    display('about-container', 'flex');
-    display('channel-detail-popup', 'block');
+    const promise = getChannelDetails(LAST_VISITED_CHANNEL);
+    promise.then((channelInfo) => {
+        const creatorInfo = getUserInfo(channelInfo['creator']);
+        const time = new Date(channelInfo['createdAt']).toDateString();
+        document.getElementById('channel-name-popup').innerText = channelInfo['name'];
+        // should add a profile pick as well and a link to their bio
+        document.getElementById('channel-creator').innerText = creatorInfo['name'];
+        document.getElementById('channel-create-date').innerText = time;
+        document.getElementById('channel-description').innerText = channelInfo['description'];
+
+        display('members-container', 'none');
+        display('about-container', 'flex');
+        display('channel-detail-popup', 'block');
+    })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+})
+
+document.getElementById('channel-description').addEventListener('blur', () => {
+    const newDescription = document.getElementById('channel-description').innerText;
+    updateChanelDetails(null, newDescription);
 })
 
 // View all the members of the channel
@@ -232,22 +248,19 @@ document.getElementById('channel-members').addEventListener('click', () => {
 })
 
 const enterChannel = (targetChannel) => {
-    LAST_VISITED_CHANNEL = targetChannel.id;
-    const channelInfo = getChannelDetails(LAST_VISITED_CHANNEL);
-    document.getElementById('channel-name-edit').innerText = channelInfo['name'];
-    document.getElementById('channel-members').innerText = `Members ${channelInfo['members'].length}`;
-}
-
-const getChannelDetails = (channelId) => {
-    const data = null;
-    apiFetch('GET', `channel/${parseInt(LAST_VISITED_CHANNEL)}`, TOKEN, null)
-        .then((data) => {
-            return data;
-        })
+    LAST_VISITED_CHANNEL = targetChannel;
+    const promise = getChannelDetails(LAST_VISITED_CHANNEL);
+    promise
+        .then((channelInfo) => {
+        console.log(channelInfo);
+        document.getElementById('channel-name-edit').innerText = channelInfo['name'];
+        document.getElementById('channel-members').innerText = `Members ${channelInfo['members'].length}`;
+    })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
-
-    return data;
 }
+
+const getChannelDetails = (channelId) => apiFetch('GET', `channel/${parseInt(channelId)}`, TOKEN, null);
+
 const updateChanelDetails = (name, description) => {
     const body = {
         'name': name,
@@ -316,6 +329,15 @@ document.getElementById('channel-detail-popup-close').addEventListener('click', 
 /* │                            User Profiles                       │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+const getUserInfo = (userId) => {
+    apiFetch('GET', `user/${parseInt(userId)}`, TOKEN, null)
+        .then((data) => {
+            return data;
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+
+    return null;
+}
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │              Viewing and Editing User's Own Profile            │ */
