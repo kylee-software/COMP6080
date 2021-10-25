@@ -176,17 +176,20 @@ span.a:hover {
 }
 
 .channel {
-    /*display: block;*/
-    display: none;
     width: 100%;
+    border: none;
+    background-color: #FFD4A3;
     height: 30px;
-    font-weight: bold;
     color: black;
-    text-align: center;
-    padding: 10px;
     text-overflow: ellipsis;
-    font-size: 8px;
-    background-color: white;
+    font-size: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.channel:hover, .channel:focus {
+    font-weight: bold;
+    background-color: #E8C195;
 }
 
 .create-channel-box {

@@ -15,12 +15,9 @@
     <div class="popup-overlay" id="errorMsg-popup">
       <div class="popup">
         <div class="x-close">
-          <button id="x-close">X</button>
+          <button id="errorMsg-popup-close">X</button>
         </div>
         <div class="error-message" id="error-message"></div>
-        <div class="center">
-          <button type="button" id="errorMsg-close">Close</button>
-        </div>
       </div>
     </div>
     <div class="start-container">
@@ -136,7 +133,8 @@
         </div>
       </div>
       <div class="channels-container" id="private-channelLst">
-        <div class="channel" id="channel-item">Private Channel</div>
+        <button class="channel" id="channel-item">Private Channel</button>
+<!--        <div class="channel" id="channel-item">Private Channel</div>-->
       </div>
       <div class="sidebar-items">
         <div class="channel-label" id="public-channel-label">Public Channels</div>
@@ -145,7 +143,7 @@
         </div>
       </div>
       <div class="channels-container" id="public-channelLst">
-        <div class="channel">Private Channel</div>
+        <button class="channel">Public Channel</button>
       </div>
     </div>
     <div class="main">
