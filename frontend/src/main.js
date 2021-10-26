@@ -29,8 +29,8 @@ const apiFetch = (method, path, token, body) => {
                         reject(errorMsg['error']);
                     });
                 } else if (response.status === 200) {
-                    response.json().then(data => {
-                        resolve(data);
+                    response.json().then(response => {
+                        resolve(response);
                     });
                 }
             })
@@ -44,6 +44,7 @@ const displayErrorMsg = (message) => {
     document.getElementById('error-message').innerText = message;
     display('errorMsg-popup', 'block');
 }
+
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                      Milestone 1                                          │ */
@@ -73,9 +74,9 @@ document.getElementById('login-submit').addEventListener('click', () => {
     };
 
     apiFetch('POST', 'auth/login', null, body)
-        .then((data) => {
-            TOKEN = data['token'];
-            USER_ID = data['userId']
+        .then((response) => {
+            TOKEN = response['token'];
+            USER_ID = response['userId']
             display('main-page', 'grid');
             display('start-page', 'none');
         })
@@ -105,9 +106,9 @@ document.getElementById('register-submit').addEventListener('click', () => {
         };
 
         apiFetch('POST', 'auth/register', null, body)
-            .then((data) => {
-                TOKEN = data['token'];
-                USER_ID = data['userId']
+            .then((response) => {
+                TOKEN = response['token'];
+                USER_ID = response['userId']
                 document.getElementById('main-page').style.display = 'grid';
                 document.getElementById('start-page').style.display = 'none';
             })
@@ -174,11 +175,14 @@ document.getElementById('create-channel').addEventListener('click', () => {
     }
 
     apiFetch('POST', 'channel', TOKEN, body)
-        .then ((data) => {
-            const channelId = data.channelId;
+        .then ((response) => {
+            const channelId = response.channelId;
             LAST_VISITED_CHANNEL = channelId;
             createChannelLabel(channelType, name, channelId);
             display('create-channel-popup', 'none');
+
+            document.getElementById('create-channel-name').value = null;
+            document.getElementById('create-channel-description').value = null;
         })
         .catch((errorMsg) => {
             displayErrorMsg(errorMsg);
@@ -202,36 +206,39 @@ const createChannelLabel = (type, channelName, channelId) => {
 
 document.getElementById('private-channelLst').addEventListener('click', (event) => {
     const currentChannel = event.target.id;
-    enterChannel(currentChannel);
+    enterChannel(USER_ID, currentChannel);
 })
 
 document.getElementById('public-channelLst').addEventListener('click', (event) => {
     const currentChannel = event.target.id;
-    enterChannel(currentChannel);
+    enterChannel(USER_ID, currentChannel);
 })
 
 // Change channel name
-document.getElementById('channel-name-edit').addEventListener('blur', () => {
-    const channelName = document.getElementById('channel-name-edit').innerText;
+document.getElementById('channel-name-label').addEventListener('blur', () => {
+    const channelName = document.getElementById('channel-name-label').innerText;
     updateChanelDetails(channelName, null);
 })
 
 // View the basic info of the channel
 document.getElementById('channel-about').addEventListener('click', () => {
-    const promise = getChannelDetails(LAST_VISITED_CHANNEL);
-    promise.then((channelInfo) => {
-        const creatorInfo = getUserInfo(channelInfo['creator']);
-        const time = new Date(channelInfo['createdAt']).toDateString();
-        document.getElementById('channel-name-popup').innerText = channelInfo['name'];
-        // should add a profile pick as well and a link to their bio
-        document.getElementById('channel-creator').innerText = creatorInfo['name'];
-        document.getElementById('channel-create-date').innerText = time;
-        document.getElementById('channel-description').innerText = channelInfo['description'];
+    getChannelDetails(LAST_VISITED_CHANNEL)
+        .then((channelInfo) => {
+            getUserInfo(channelInfo['creator'])
+                .then ((creatorInfo) => {
+                    const time = new Date(channelInfo['createdAt']).toDateString();
+                    document.getElementById('channel-title-popup').innerText = channelInfo['name'];
+                    // should add a profile pick as well and a link to their bio
+                    document.getElementById('channel-creator').innerText = creatorInfo['name'];
+                    document.getElementById('channel-create-date').innerText = time;
+                    document.getElementById('channel-description').innerText = channelInfo['description'];
 
-        display('members-container', 'none');
-        display('about-container', 'flex');
-        display('channel-detail-popup', 'block');
-    })
+                    display('members-container', 'none');
+                    display('about-container', 'flex');
+                    display('channel-detail-popup', 'block');
+                })
+                .catch((errorMsg) => displayErrorMsg(errorMsg));
+        })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 })
 
@@ -242,22 +249,73 @@ document.getElementById('channel-description').addEventListener('blur', () => {
 
 // View all the members of the channel
 document.getElementById('channel-members').addEventListener('click', () => {
+    document.getElementById('channel-title-popup').innerText = 'Members';
+    document.getElementById('channel-invite').style.display = 'block';
+
+    getChannelDetails(LAST_VISITED_CHANNEL)
+        .then((channelInfo) => {
+            const members = channelInfo['members'];
+
+            for (const member in members) {
+                getUserInfo(member)
+                    .then((userInfo) => {
+                        const name = userInfo['name'];
+                        const photo = userInfo['image'];
+                        createMemberBox(member.toString(), photo, name);
+                    })
+                    .catch((errorMsg) => displayErrorMsg(errorMsg));
+            }
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+
     display('members-container', 'flex');
     display('about-container', 'none');
     display('channel-detail-popup', 'block');
 })
 
-const enterChannel = (targetChannel) => {
+document.getElementById('channel-detail-popup-close').addEventListener('click', () => {
+    display('channel-detail-popup', 'none');
+})
+
+const enterChannel = (userId, targetChannel) => {
     LAST_VISITED_CHANNEL = targetChannel;
-    const promise = getChannelDetails(LAST_VISITED_CHANNEL);
-    promise
+    getChannelDetails(LAST_VISITED_CHANNEL)
         .then((channelInfo) => {
-        console.log(channelInfo);
-        document.getElementById('channel-name-edit').innerText = channelInfo['name'];
-        document.getElementById('channel-members').innerText = `Members ${channelInfo['members'].length}`;
-    })
+            const members = channelInfo['members'];
+            if (!members.includes(userId)) {
+                document.getElementById('channel-name-label').readOnly = true;
+                display('channel-about', 'none');
+                display('channel-members', 'none');
+                display('leave-channel', 'none');
+                display('join-channel', 'inline-flex');
+            } else {
+                document.getElementById('channel-name-label').readOnly = false;
+                display('channel-about', 'inline-flex');
+                display('channel-members', 'inline-flex');
+                display('leave-channel', 'inline-flex');
+                display('join-channel', 'none');
+                document.getElementById('members-count').innerText = `Members ${channelInfo['members'].length}`;
+            }
+            document.getElementById('channel-name-label').innerText = channelInfo['name'];
+        })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 }
+
+document.getElementById('leave-channel').addEventListener('click', () => {
+    apiFetch('POST', `channel/${parseInt(LAST_VISITED_CHANNEL)}/leave`, TOKEN, null)
+        .then((response) => {
+            enterChannel(USER_ID, LAST_VISITED_CHANNEL);
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+})
+
+document.getElementById('join-channel').addEventListener('click', () => {
+    apiFetch('POST', `channel/${parseInt(LAST_VISITED_CHANNEL)}/join`, TOKEN, null)
+        .then((response) => {
+            enterChannel(USER_ID, LAST_VISITED_CHANNEL);
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+})
 
 const getChannelDetails = (channelId) => apiFetch('GET', `channel/${parseInt(channelId)}`, TOKEN, null);
 
@@ -271,9 +329,18 @@ const updateChanelDetails = (name, description) => {
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 }
 
-document.getElementById('channel-detail-popup-close').addEventListener('click', () => {
-    display('channel-detail-popup', 'none');
-})
+const createMemberBox = (userId, profilePic, name) => {
+    const memberLst = document.getElementById('members-container');
+    const newMember = document.getElementById('member-info-box').cloneNode(true);
+    const memberPhoto = newMember.childNodes[0];
+    const memberName = newMember.childNodes[1];
+
+    newMember.id = userId;
+    memberPhoto.src = profilePic;
+    memberName.innerText = name;
+    display(userId, 'flex');
+    memberLst.appendChild(newMember);
+}
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                     Milestone 3                                           │ */
@@ -329,15 +396,44 @@ document.getElementById('channel-detail-popup-close').addEventListener('click', 
 /* │                            User Profiles                       │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-const getUserInfo = (userId) => {
-    apiFetch('GET', `user/${parseInt(userId)}`, TOKEN, null)
-        .then((data) => {
-            return data;
+// display user profile
+document.getElementById('members-container').addEventListener('click', (event) => {
+    const targetMember = event.target.id;
+    displayUserProfile(targetMember);
+})
+
+document.getElementById('user-profile-popup-close').addEventListener('click', () => {
+    display('user-profile-popup', 'none');
+})
+
+const displayUserProfile = (userId) => {
+    getUserInfo(userId)
+        .then((userInfo) => {
+            const photo = userInfo['image'];
+            const name = userInfo['name'];
+            const bio = userInfo['bio'];
+            const email = userInfo['email'];
+
+            document.getElementById('user-profile-photo').src = photo;
+            document.getElementById('user-name').innerText = name;
+            document.getElementById('user-bio').innerText = bio;
+            document.getElementById('user-email').innerText = email;
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 
-    return null;
+    document.getElementById('user-name').contentEditable = 'false';
+    document.getElementById('user-bio').contentEditable = 'false';
+    document.getElementById('user-email').readOnly = true;
+    display('upload-photo', 'none');
+    display('upload-photo-label', 'none');
+    display('edit-user-name', 'none');
+    display('edit-user-bio', 'none');
+    display('edit-user-email', 'none');
+    display('change-password-box', 'none');
+    display('user-profile-popup', 'block');
 }
+
+const getUserInfo = (userId) => apiFetch('GET', `user/${parseInt(userId)}`, TOKEN, null);
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │              Viewing and Editing User's Own Profile            │ */
@@ -397,9 +493,9 @@ const getUserInfo = (userId) => {
 
 // a function to refresh channel screen --> do this before the user logging out
 // 1. map the userId to
-const node = document.getElementById('create-channel-popup').cloneNode(true);
-console.log(node);
-console.log(document.getElementById('create-channel-popup'));
+// const node = document.getElementById('create-channel-popup').cloneNode(true);
+// console.log(node);
+// console.log(document.getElementById('create-channel-popup'));
 
 // update channel name when the text box is blured
 
