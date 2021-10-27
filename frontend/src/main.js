@@ -7,6 +7,7 @@ let LAST_VISITED_CHANNEL = null;
 // const storeToken = (token) => TOKEN = token;
 // const storeToken = (userId, token) => localStorage.setItem(userId, token);
 
+
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                    Helper Functions                                       │ */
 /* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
@@ -80,6 +81,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
             listAllChannels();
             display('main-page', 'grid');
             display('start-page', 'none');
+            createChannelMessageBox(1234);
         })
         .catch((errorMsg) => {
             displayErrorMsg(errorMsg);
@@ -155,16 +157,22 @@ const listAllChannels = () => {
     apiFetch('GET', 'channel', TOKEN, null)
         .then((response) => {
             const channels = response['channels'];
-            for (const channel in channels) {
-                if (channel['private'] === false) {
-                    createChannelLabel('public', channel['name'], channel['id']);
+            for (let i = 0; i < channels.length; i++) {
+                if (channels[i]['private'] === false) {
+                    createChannelLabel('public', channels[i]['name'], channels[i]['id']);
                 } else {
-                    createChannelLabel('private', channel['name'], channel['id']);
+                    const members = channels[i]['members'];
+                    if (members.includes(USER_ID)) {
+                        createChannelLabel('joined-public', channels[i]['name'], channels[i]['id']);
+                    } else {
+                        createChannelLabel('private', channels[i]['name'], channels[i]['id']);
+                    }
                 }
             }
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 }
+
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                      Creating a New Channel                    │ */
@@ -222,13 +230,15 @@ const createChannelLabel = (type, channelName, channelId) => {
 /* └────────────────────────────────────────────────────────────────┘ */
 
 document.getElementById('private-channelLst').addEventListener('click', (event) => {
-    const currentChannel = event.target.id;
-    enterChannel(USER_ID, currentChannel);
+    displayMemberSrc(event.target.innerText);
+})
+
+document.getElementById('joined-channel-channelLst').addEventListener('click', (event) => {
+    displayMemberSrc(event.target.innerText)
 })
 
 document.getElementById('public-channelLst').addEventListener('click', (event) => {
-    const currentChannel = event.target.id;
-    enterChannel(USER_ID, currentChannel);
+    displayNonMemberSrc(event.target.innerText);
 })
 
 // Change channel name
@@ -266,7 +276,6 @@ document.getElementById('channel-description').addEventListener('blur', () => {
 
 // View all the members of the channel
 document.getElementById('channel-members').addEventListener('click', () => {
-    document.getElementById('channel-title-popup').innerText = 'Members';
     document.getElementById('channel-invite').style.display = 'block';
 
     getChannelDetails(LAST_VISITED_CHANNEL)
@@ -282,6 +291,7 @@ document.getElementById('channel-members').addEventListener('click', () => {
                     })
                     .catch((errorMsg) => displayErrorMsg(errorMsg));
             }
+            document.getElementById('channel-title-popup').innerText = `Members ${members.length}`;
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 
@@ -294,42 +304,35 @@ document.getElementById('channel-detail-popup-close').addEventListener('click', 
     display('channel-detail-popup', 'none');
 })
 
-const enterChannel = (userId, targetChannel) => {
-    LAST_VISITED_CHANNEL = targetChannel;
-    getChannelDetails(LAST_VISITED_CHANNEL)
-        .then((channelInfo) => {
-            const members = channelInfo['members'];
-            if (!members.includes(userId)) {
-                document.getElementById('channel-name-label').readOnly = true;
-                display('channel-about', 'none');
-                display('channel-members', 'none');
-                display('leave-channel', 'none');
-                display('join-channel', 'inline-flex');
-            } else {
-                document.getElementById('channel-name-label').readOnly = false;
-                display('channel-about', 'inline-flex');
-                display('channel-members', 'inline-flex');
-                display('leave-channel', 'inline-flex');
-                display('join-channel', 'none');
-                document.getElementById('members-count').innerText = `Members ${channelInfo['members'].length}`;
-            }
-            document.getElementById('channel-name-label').innerText = channelInfo['name'];
-        })
-        .catch((errorMsg) => displayErrorMsg(errorMsg));
-}
-
 document.getElementById('leave-channel').addEventListener('click', () => {
     apiFetch('POST', `channel/${parseInt(LAST_VISITED_CHANNEL)}/leave`, TOKEN, null)
-        .then((response) => {
-            enterChannel(USER_ID, LAST_VISITED_CHANNEL);
+        .then(() => {
+            const privateChannelLst = document.getElementById('private-channelLst');
+            const joinedChannelLst = document.getElementById('joined-channel-channelLst');
+            const publicChannelLst = document.getElementById('public-channelLst');
+            const targetChannel = document.getElementById(LAST_VISITED_CHANNEL);
+            if (privateChannelLst.contains(targetChannel)) {
+                privateChannelLst.removeChild(targetChannel);
+                LAST_VISITED_CHANNEL = null;
+            } else {
+                publicChannelLst.appendChild(targetChannel);
+                joinedChannelLst.removeChild(targetChannel);
+                displayNonMemberSrc(targetChannel.innerText);
+            }
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 })
 
 document.getElementById('join-channel').addEventListener('click', () => {
     apiFetch('POST', `channel/${parseInt(LAST_VISITED_CHANNEL)}/join`, TOKEN, null)
-        .then((response) => {
-            enterChannel(USER_ID, LAST_VISITED_CHANNEL);
+        .then(() => {
+            const joinedChannelLst = document.getElementById('joined-channel-channelLst');
+            const publicChannelLst = document.getElementById('public-channelLst');
+            const targetChannel = document.getElementById(LAST_VISITED_CHANNEL);
+
+            joinedChannelLst.appendChild(targetChannel);
+            publicChannelLst.removeChild(targetChannel);
+            displayMemberSrc(targetChannel.innerText);
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 })
@@ -349,6 +352,7 @@ const updateChanelDetails = (name, description) => {
 const createMemberBox = (userId, profilePic, name) => {
     const memberLst = document.getElementById('members-container');
     const newMember = document.getElementById('member-info-box').cloneNode(true);
+    console.log(newMember.childNodes);
     const memberPhoto = newMember.childNodes[0];
     const memberName = newMember.childNodes[1];
 
@@ -359,6 +363,24 @@ const createMemberBox = (userId, profilePic, name) => {
     memberLst.appendChild(newMember);
 }
 
+const displayNonMemberSrc = (channelName) => {
+    document.getElementById('channel-name-edit').innerText = channelName;
+    document.getElementById('channel-name-label').readOnly = true;
+    display('channel-about', 'none');
+    display('channel-members', 'none');
+    display('leave-channel', 'none');
+    display('join-channel', 'inline-flex');
+}
+
+const displayMemberSrc = (channelName) => {
+    document.getElementById('channel-name-edit').innerText = channelName;
+    document.getElementById('channel-name-label').readOnly = false;
+    display('channel-about', 'inline-flex');
+    display('channel-members', 'inline-flex');
+    display('leave-channel', 'inline-flex');
+    display('join-channel', 'none');
+}
+
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                     Milestone 3                                           │ */
 /* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
@@ -367,6 +389,28 @@ const createMemberBox = (userId, profilePic, name) => {
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                    Viewing Channel Messages                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
+
+const displayChannelMessages = (channelId) => {
+    const channelMessages = document.getElementById('channel-messages');
+
+};
+
+const createChannelMessageBox = (messageId) => {
+    const newMessageBox = document.getElementById('channel-message-box').cloneNode(true);
+    newMessageBox.id = messageId.toString();
+    const reactionEmojis = newMessageBox.children[0];
+    console.log(reactionEmojis);
+
+};
+
+document.getElementById('test').addEventListener('mouseover', () => {
+    document.getElementById('reactions').style.visibility = 'visible';
+})
+
+document.getElementById('test').addEventListener('mouseout', () => {
+    document.getElementById('reactions').style.visibility = 'hidden';
+})
+
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -392,6 +436,13 @@ const createMemberBox = (userId, profilePic, name) => {
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                        Reacting to Messages                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
+
+const reactMessage = (elementId) => {
+    document.getElementById(elementId).addEventListener('click', (event) => {
+        const targetEmoji = event.target.id;
+
+    })
+};
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */

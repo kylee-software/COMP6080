@@ -541,26 +541,27 @@ input.profile {
 }
 
 .member-message-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     width: 100%;
     height: fit-content;
     margin: 10px 0;
-}
-
-.emojis-overlay {
-    display: flex;
-    width: fit-content;
-    height: fit-content;
-    z-index: 2;
-    position: relative;
-    float: right;
-    padding: 0 10px;
 }
 
 .emoji-reactions-container {
     display: flex;
     flex-direction: row;
     height: fit-content;
-    width: fit-content;
+    width: 100%;
+    justify-content: flex-end;
+    padding: 0 10px;
+    box-sizing: border-box;
+    visibility: hidden;
+}
+
+.emoji-reactions-container:hover {
+    visibility: visible;
 }
 
 .emoji-style {

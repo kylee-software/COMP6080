@@ -178,6 +178,11 @@
         <button class="channel" id="channel-item">Private Channel</button>
       </div>
       <div class="sidebar-items">
+        <div class="channel-label" id="joined-public-channel-label">Joined Public Channels</div>
+      </div>
+      <div class="channels-container" id="joined-channel-channelLst">
+      </div>
+      <div class="sidebar-items">
         <div class="channel-label" id="public-channel-label">Public Channels</div>
         <div class="icon" id="add-public-channel">
           <img src="images/plus-lg.svg" alt="Add Channel Button">
@@ -200,7 +205,7 @@
           </li>
           <li id="channel-members">
             <img src="images/channel-members.svg" alt="channel-members">
-            <span id="members-count">Members 0</span>
+            <span>Members</span>
           </li>
           <li id="leave-channel">
             <img src="images/leave-channel.svg" alt="leave channel">
@@ -212,10 +217,9 @@
           </li>
         </ul>
       </div>
-      <div class="channel-messages-container">
-          <div id="member-message-box" class="member-message-container">
-            <div id="emojis-overlay" class="emojis-overlay">
-              <div class="emoji-reactions-container">
+      <div id="channel-messages" class="channel-messages-container">
+        <div id="channel-message-box" class="member-message-container">
+          <div id="reactions" class="emoji-reactions-container">
                 <img src="images/red-heart.svg" id="red-heart" class="emoji-style">
                 <img src="images/frowning-face.svg" id="frowning-face" class="emoji-style">
                 <img src="images/face-with-steam-from-nose.svg" id="face-with-steam-from-nose" class="emoji-style">
@@ -231,9 +235,8 @@
                 <img src="images/rolling-on-the-floor-laughing.svg" id="rolling-on-the-floor-laughing" class="emoji-style">
                 <img src="images/beaming-face-with-smiling-eyes.svg" id="beaming-face-with-smiling-eyes" class="emoji-style">
               </div>
-            </div>
-            <div class="message-container">
-              <div class="user-message-container">
+          <div class="message-container">
+              <div id="test" class="user-message-container">
                 <div class="user-message-profile">
                   <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
                 </div>
@@ -262,7 +265,7 @@
                 <img src="images/unpin-message.svg" alt="unpin message">
               </div>
             </div>
-          </div>
+        </div>
       </div>
       <div class="channel-text-container">
         <input type="text" id="channel-text-box" class="text-box-container">
