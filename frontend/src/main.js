@@ -140,6 +140,10 @@ document.getElementById('private-channel-label').addEventListener('click', () =>
     displayChannels('private');
 })
 
+document.getElementById('joined-public-channel-label').addEventListener('click', () => {
+    displayChannels('joined-public');
+})
+
 document.getElementById('public-channel-label').addEventListener('click', () => {
     displayChannels('public');
 })
@@ -158,14 +162,14 @@ const listAllChannels = () => {
         .then((response) => {
             const channels = response['channels'];
             for (let i = 0; i < channels.length; i++) {
-                if (channels[i]['private'] === false) {
-                    createChannelLabel('public', channels[i]['name'], channels[i]['id']);
-                } else {
-                    const members = channels[i]['members'];
+                const members = channels[i]['members'];
+                if (channels[i]['private'] === true && members.includes(USER_ID)) {
+                    createChannelLabel('private', channels[i]['name'], channels[i]['id']);
+                } else if (channels[i]['private'] === false) {
                     if (members.includes(USER_ID)) {
                         createChannelLabel('joined-public', channels[i]['name'], channels[i]['id']);
                     } else {
-                        createChannelLabel('private', channels[i]['name'], channels[i]['id']);
+                        createChannelLabel('public', channels[i]['name'], channels[i]['id']);
                     }
                 }
             }
@@ -203,7 +207,11 @@ document.getElementById('create-channel').addEventListener('click', () => {
         .then ((response) => {
             const channelId = response.channelId;
             LAST_VISITED_CHANNEL = channelId;
-            createChannelLabel(channelType, name, channelId);
+            if (channelType === 'public') {
+                createChannelLabel(`joined-${channelType}`, name, channelId);
+            } else {
+                createChannelLabel(channelType, name, channelId);
+            }
             display('create-channel-popup', 'none');
 
             document.getElementById('create-channel-name').value = null;
@@ -217,12 +225,16 @@ document.getElementById('create-channel').addEventListener('click', () => {
 const createChannelLabel = (type, channelName, channelId) => {
     const channelLst = document.getElementById(`${type}-channelLst`);
     let newChannel = document.getElementById('channel-item').cloneNode(true);
-    newChannel.id = channelId;
+    newChannel.id = channelId.toString();
     newChannel.innerText = channelName;
     channelLst.appendChild(newChannel);
     display(channelId, 'block');
-    display(`${type}-channelLst`, 'flex');
+    // display(`${type}-channelLst`, 'flex');
 };
+
+document.getElementById('create-channel-close').addEventListener('click', () => {
+    display('create-channel-popup', 'none');
+})
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -230,15 +242,21 @@ const createChannelLabel = (type, channelName, channelId) => {
 /* └────────────────────────────────────────────────────────────────┘ */
 
 document.getElementById('private-channelLst').addEventListener('click', (event) => {
-    displayMemberSrc(event.target.innerText);
+    LAST_VISITED_CHANNEL = event.target.id;
+    const name = event.target.innerText;
+    displayMemberSrc(name);
 })
 
-document.getElementById('joined-channel-channelLst').addEventListener('click', (event) => {
-    displayMemberSrc(event.target.innerText)
+document.getElementById('joined-public-channelLst').addEventListener('click', (event) => {
+    LAST_VISITED_CHANNEL = event.target.id;
+    const name = event.target.innerText;
+    displayMemberSrc(name);
 })
 
 document.getElementById('public-channelLst').addEventListener('click', (event) => {
-    displayNonMemberSrc(event.target.innerText);
+    LAST_VISITED_CHANNEL = event.target.id;
+    const name = event.target.innerText;
+    displayNonMemberSrc(name);
 })
 
 // Change channel name
@@ -326,7 +344,7 @@ document.getElementById('leave-channel').addEventListener('click', () => {
 document.getElementById('join-channel').addEventListener('click', () => {
     apiFetch('POST', `channel/${parseInt(LAST_VISITED_CHANNEL)}/join`, TOKEN, null)
         .then(() => {
-            const joinedChannelLst = document.getElementById('joined-channel-channelLst');
+            const joinedChannelLst = document.getElementById('joined-public-channelLst');
             const publicChannelLst = document.getElementById('public-channelLst');
             const targetChannel = document.getElementById(LAST_VISITED_CHANNEL);
 
@@ -352,7 +370,7 @@ const updateChanelDetails = (name, description) => {
 const createMemberBox = (userId, profilePic, name) => {
     const memberLst = document.getElementById('members-container');
     const newMember = document.getElementById('member-info-box').cloneNode(true);
-    console.log(newMember.childNodes);
+    // console.log(newMember.childNodes);
     const memberPhoto = newMember.childNodes[0];
     const memberName = newMember.childNodes[1];
 
@@ -364,8 +382,8 @@ const createMemberBox = (userId, profilePic, name) => {
 }
 
 const displayNonMemberSrc = (channelName) => {
-    document.getElementById('channel-name-edit').innerText = channelName;
     document.getElementById('channel-name-label').readOnly = true;
+    document.getElementById('channel-name-label').innerText = channelName;
     display('channel-about', 'none');
     display('channel-members', 'none');
     display('leave-channel', 'none');
@@ -373,8 +391,8 @@ const displayNonMemberSrc = (channelName) => {
 }
 
 const displayMemberSrc = (channelName) => {
-    document.getElementById('channel-name-edit').innerText = channelName;
     document.getElementById('channel-name-label').readOnly = false;
+    document.getElementById('channel-name-label').innerText = channelName;
     display('channel-about', 'inline-flex');
     display('channel-members', 'inline-flex');
     display('leave-channel', 'inline-flex');
@@ -399,18 +417,9 @@ const createChannelMessageBox = (messageId) => {
     const newMessageBox = document.getElementById('channel-message-box').cloneNode(true);
     newMessageBox.id = messageId.toString();
     const reactionEmojis = newMessageBox.children[0];
-    console.log(reactionEmojis);
+    // console.log(reactionEmojis);
 
 };
-
-document.getElementById('test').addEventListener('mouseover', () => {
-    document.getElementById('reactions').style.visibility = 'visible';
-})
-
-document.getElementById('test').addEventListener('mouseout', () => {
-    document.getElementById('reactions').style.visibility = 'hidden';
-})
-
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -437,12 +446,88 @@ document.getElementById('test').addEventListener('mouseout', () => {
 /* │                        Reacting to Messages                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-const reactMessage = (elementId) => {
-    document.getElementById(elementId).addEventListener('click', (event) => {
-        const targetEmoji = event.target.id;
 
+// the emojis will show when the mouse is hovering over it, then stay visible
+// when click on the message's main box to allow users to react to a message.
+document.querySelectorAll('.message-container').forEach(messageBox => {
+    messageBox.addEventListener('mouseover', () => {
+        document.getElementById('reactions').style.visibility = 'visible';
     })
-};
+})
+
+document.querySelectorAll('.message-container').forEach(messageBox => {
+    messageBox.addEventListener('click', () => {
+        document.getElementById('reactions').style.visibility = 'visible';
+    })
+})
+
+// react message
+document.querySelectorAll('.emoji-reactions-container').forEach(emojis => {
+    emojis.addEventListener('click', (event) => {
+        let targetEmoji = event.target;
+        let emojiId = (targetEmoji.id).split('-');
+        let messageId = emojiId.pop();
+        let emojiName = emojiId.join('-');
+
+        apiFetch('POST', `message/react/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, {'react': emojiName})
+            .then(() => {
+                createReactedEmoji(emojiName, messageId);
+                document.getElementById(`${emojiName}-reacted-${messageId}`).className = 'reacted-emoji';
+            })
+            .catch((errorMsg) => displayErrorMsg(errorMsg));
+
+        document.getElementById('reactions').style.visibility = 'hidden';
+    });
+})
+
+// un-react message
+document.querySelectorAll('.reacted-emoji').forEach(reactedEmoji => {
+    reactedEmoji.addEventListener('click', () => {
+        const emojiId = reactedEmoji.id;
+        let emojiName = emojiId.split('-');
+        let messageId = emojiName.pop();
+        emojiName.pop();
+        emojiName = emojiName.join('-');
+        const reactions = document.getElementById(`message-reactions-${messageId}`);
+
+        apiFetch('POST', `message/unreact/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, {'react': emojiName})
+            .then(() => {
+                let count = parseInt(reactedEmoji.children[1].innerText);
+                if (count <= 1) {
+                    reactions.removeChild(reactions);
+                } else {
+                    reactedEmoji.children[1].innerText = (count - 1).toString();
+                    reactedEmoji.className = 'emoji-container';
+                }
+            })
+            .catch((errorMsg) => displayErrorMsg(errorMsg));
+    })
+})
+
+const createReactedEmoji = (emojiName, messageId) => {
+    const reactedEmojis = document.getElementById(`message-reactions-${messageId}`);
+    const emojiId = `${emojiName}-reacted-${messageId}`;
+    let newEmoji = document.getElementById(emojiId);
+    if (newEmoji === null) {
+        newEmoji = document.createElement('div');
+        newEmoji.id = emojiId;
+        // newEmoji.className = 'emoji-container';
+
+        let img = document.createElement('img');
+        img.src = `images/${emojiName}.svg`;
+        img.className = 'emoji-style';
+        newEmoji.appendChild(img);
+
+        let reactCount = document.createElement('span');
+        reactCount.innerText = '1';
+        newEmoji.appendChild(reactCount);
+
+        // reactedEmojis.appendChild(newEmoji);
+    } else {
+        let count = newEmoji.children[1].innerText;
+        newEmoji.children[1].innerText = (parseInt(count) + 1).toString();
+    }
+}
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */

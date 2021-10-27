@@ -168,8 +168,8 @@ span.a:hover {
 }
 
 .channels-container {
-    /*display: flex;*/
-    display: none;
+    display: flex;
+    /*display: none;*/
     width: 100%;
     height: fit-content;
     flex-direction: column;
@@ -185,6 +185,7 @@ span.a:hover {
     font-size: 10px;
     cursor: pointer;
     box-sizing: border-box;
+    display: none;
 }
 
 .channel:hover, .channel:focus {
@@ -552,6 +553,7 @@ input.profile {
 .emoji-reactions-container {
     display: flex;
     flex-direction: row;
+    gap: 5px;
     height: fit-content;
     width: 100%;
     justify-content: flex-end;
@@ -560,9 +562,6 @@ input.profile {
     visibility: hidden;
 }
 
-.emoji-reactions-container:hover {
-    visibility: visible;
-}
 
 .emoji-style {
     object-fit: contain;
@@ -627,17 +626,22 @@ input.profile {
     align-items: center;
     width: 100%;
     height: fit-content;
-    /*float: left;*/
+    gap: 5px;
     border-radius: 10px;
     background-color: #E8C195;
 }
 
-.reacted-emoji {
+
+.emoji-container, .reacted-emoji {
     display: inline-flex;
     justify-content: flex-start;
     align-items: center;
     width: fit-content;
     height: fit-content;
+}
+
+.reacted-emoji {
+    border: 1px solid #006E8A;
 }
 
 .message-info-container {
