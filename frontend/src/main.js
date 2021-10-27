@@ -413,14 +413,102 @@ const displayChannelMessages = (channelId) => {
 
 };
 
-const createChannelMessageBox = (messageId) => {
+const createChannelMessageBox = (messageInfo) => {
+    const messageId = messageInfo['id'];
+    const message = messageInfo['message'];
+    const image = messageInfo['image'];
+    const sender = messageInfo['sender'];
+    const sentAt = messageInfo['sentAt'];
+    const edited = messageInfo['edited'];
+    const editedAt = messageInfo['editedAt'];
+    const pinned = messageInfo['pinned'];
+    const reacts = messageInfo['reacts'];
+
     let newMessageBox = document.getElementById('channel-message-box').cloneNode(true);
     newMessageBox.id = messageId.toString();
     const reactionEmojis = newMessageBox.children[0];
-    const messageBody = newMessageBox.children[1];
     reactionEmojis.id = `reactions-${messageId.toString()}`;
 
-    // console.log(reactionEmojis);
+    const messageContainer = newMessageBox.children[1];
+    const messageMainBox = messageContainer.children[0];
+    const messageBox = messageMainBox.children[1];
+
+    // create user profile picture
+    const userProfile = messageMainBox.children[0];
+    userProfile.id = `${userProfile.id}-${messageId}`;
+    // userProfile.children[0].src = image; Need to change this, have to get the user's info
+
+    // setting sender's name
+    const senderName = messageBox.children[0].children[0];
+    senderName.id = `${senderName.id}-${messageId}`;
+    // senderName.innerText = senderName; --> need to edit need to get sender info
+
+    getUserInfo(sender).then((userInfo) => {
+        userProfile.children[0].src = userInfo['image'];
+        senderName.innerText = userInfo['name'];
+    }).catch((errorMsg) => displayErrorMsg(errorMsg));
+
+    // setting user's message
+    const senderMessage = messageBox.children[1].children[0];
+    senderMessage.id = `${senderMessage.id}-${messageId}`;
+    senderMessage.innerText = message;
+
+    // create message image
+    const messageImgBox = messageBox.children[2];
+    messageImgBox.children[0] = `${messageImg.id}-${messageId}`;
+    if (image !== null) {
+        messageImgBox.style.display = 'inline-flex';
+    } else {
+        messageImgBox.style.display = 'inline-flex';
+    }
+
+    // create reacted emojis
+    const reactedEmojis = messageBox.children[3];
+    reactedEmojis.id = `${reactedEmojis.id}-${messageId}`;
+
+    const messageBoxFooter = messageContainer.children[1];
+
+    // edited label
+    const editedLabel = messageBoxFooter.children[0];
+    editedLabel.id = `${editedLabel.id}-${messageId}`;
+
+    // created date label
+    const createdAtLabel = messageBoxFooter.children[1];
+    createdAtLabel.id = `${createdAtLabel.id}-${messageId}`;
+
+    if (!edited) {
+        editedLabel.style.visibility = 'hidden';
+        createdAtLabel.innerText = new Date(sentAt).toDateString();
+    } else {
+        editedLabel.style.visibility = 'visible';
+        createdAtLabel.innerText = new Date(editedAt).toDateString();
+    }
+
+    // edit message
+    const editMessageIcon = messageBoxFooter.children[2];
+    editMessageIcon.id = `${editMessageIcon.id}-${messageId}`;
+
+    if (sender ===  USER_ID) {
+        editMessageIcon.style.display = 'flex';
+    } else {
+        editMessageIcon.style.display = 'none';
+    }
+
+    // pinned/un-pined
+    const pinnedIcon = messageBoxFooter.children[3];
+    pinnedIcon.id = `${pinnedIcon.id}-${messageId}`;
+
+    if (pinned) {
+        pinnedIcon.src = 'images/pin-message.svg';
+    } else {
+        pinnedIcon.src = 'images/unpin-message.svg';
+    }
+
+    document.getElementById('channel-messages').appendChild(newMessageBox);
+
+    for (let i = 0; i < reacts.length; i++) {
+        createReactedEmoji(reacts[i]['react'], messageId);
+    }
 
 };
 
@@ -526,7 +614,7 @@ const createReactedEmoji = (emojiName, messageId) => {
         reactCount.innerText = '1';
         newEmoji.appendChild(reactCount);
 
-        // reactedEmojis.appendChild(newEmoji);
+        reactedEmojis.appendChild(newEmoji);
     } else {
         let count = newEmoji.children[1].innerText;
         newEmoji.children[1].innerText = (parseInt(count) + 1).toString();

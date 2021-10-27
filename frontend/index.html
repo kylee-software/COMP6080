@@ -234,19 +234,19 @@
                 <img src="images/beaming-face-with-smiling-eyes.svg" class="emoji-style">
               </div>
           <div class="message-container">
-              <div class="user-message-container">
-                <div class="user-message-profile">
+            <div class="user-message-container">
+                <div id="sender-profile" class="user-message-profile">
                   <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
                 </div>
                 <div class="user-main-message-container">
                   <div class="user-message-name">
-                    <spa>Kylee</spa>
+                    <spa id="sender-name">Kylee</spa>
                   </div>
                   <div class="user-message">
-                    <span role="textbox" contenteditable="true" id="user-channel-message">Channel Name</span>
+                    <span role="textbox" contenteditable="true" id="sender-message">Channel Name</span>
                   </div>
                   <div class="user-message-photo">
-                    <img src="images/red-heart.svg" class="user-channel-photo">
+                    <img src="images/red-heart.svg" class="user-channel-photo" id="message-image">
                   </div>
                   <div class="user-reactions" id="message-reactions">
 <!--                    <div class="reacted-emoji">-->
@@ -256,13 +256,13 @@
                   </div>
                 </div>
               </div>
-              <div id="message-footer-messageId" class="message-info-container">
-                <span class="edited-tag">(edited)</span>
-                <span class="message-created-date">date</span>
-                <img class="icon" src="images/edit.svg" alt="edit message">
-                <img src="images/unpin-message.svg" alt="unpin message">
+            <div id="message-footer-messageId" class="message-info-container">
+                <span id="edited">(edited)</span>
+                <span class="message-created-date" id="createdAt">date</span>
+                <img class="icon" id="edit-message" src="images/edit.svg" alt="edit message">
+                <img id="pined" src="images/unpin-message.svg" alt="unpin message">
               </div>
-            </div>
+          </div>
         </div>
       </div>
       <div class="channel-text-container">
