@@ -212,7 +212,55 @@
           </li>
         </ul>
       </div>
-      <div class="channel-messages-container">messages container</div>
+      <div class="channel-messages-container">
+          <div id="member-message-box" class="member-message-container">
+            <div id="emojis-overlay" class="emojis-overlay">
+              <div class="emoji-reactions-container">
+                <img src="images/red-heart.svg" id="red-heart" class="emoji-style">
+                <img src="images/frowning-face.svg" id="frowning-face" class="emoji-style">
+                <img src="images/face-with-steam-from-nose.svg" id="face-with-steam-from-nose" class="emoji-style">
+                <img src="images/partying-face.svg" id="partying-face" class="emoji-style">
+                <img src="images/sad-but-relieved-face.svg" id="sad-but-relieved-face" class="emoji-style">
+                <img src="images/face-with-rolling-eyes.svg" id="face-with-rolling-eyes" class="emoji-style">
+                <img src="images/smiling-face-with-heart-eyes.svg" id="smiling-face-with-heart-eyes" class="emoji-style">
+                <img src="images/disappointed-face.svg" id="disappointed-face" class="emoji-style">
+                <img src="images/pouting-face.svg" id="pouting-face" class="emoji-style">
+                <img src="images/grinning-squinting-face.svg" id="grinning-squinting-face" class="emoji-style">
+                <img src="images/smiling-face-with-hearts.svg" id="smiling-face-with-hearts" class="emoji-style">
+                <img src="images/winking-face.svg" id="winking-face" class="emoji-style">
+                <img src="images/rolling-on-the-floor-laughing.svg" id="rolling-on-the-floor-laughing" class="emoji-style">
+                <img src="images/beaming-face-with-smiling-eyes.svg" id="beaming-face-with-smiling-eyes" class="emoji-style">
+              </div>
+            </div>
+            <div class="message-container">
+              <div class="user-message-container">
+                <div class="user-message-profile">
+                  <img src="images/logo.png" alt="user profile photo" class="user-message-photo">
+                </div>
+                <div class="user-main-message-container">
+                  <div class="user-message-name">
+                    <spa>Kylee</spa>
+                  </div>
+                  <div class="user-message">
+                    <span role="textbox" contenteditable="true" id="user-channel-message">Channel Name</span>
+                  </div>
+                  <div class="user-reactions" id="message-reactions">
+                    <div class="reacted-emoji" id="emoji-id-plus-reacted">
+                      <img src="images/face-with-rolling-eyes.svg" class="emoji-style">
+                      <span>2</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="message-footer-messageId" class="message-info-container">
+                <span class="edited-tag">(edited)</span>
+                <span class="message-created-date">date</span>
+                <img class="icon" src="images/edit.svg" alt="edit message">
+                <img src="images/unpin-message.svg" alt="unpin message">
+              </div>
+            </div>
+          </div>
+      </div>
       <div class="channel-text-container">text container</div>
     </div>
   </div>

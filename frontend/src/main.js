@@ -77,6 +77,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
         .then((response) => {
             TOKEN = response['token'];
             USER_ID = response['userId']
+            listAllChannels();
             display('main-page', 'grid');
             display('start-page', 'none');
         })
@@ -109,6 +110,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
             .then((response) => {
                 TOKEN = response['token'];
                 USER_ID = response['userId']
+                listAllChannels();
                 document.getElementById('main-page').style.display = 'grid';
                 document.getElementById('start-page').style.display = 'none';
             })
@@ -148,6 +150,21 @@ const displayChannels = (type) => {
         display(`${type}-channelLst`, 'flex');
     }
 };
+
+const listAllChannels = () => {
+    apiFetch('GET', 'channel', TOKEN, null)
+        .then((response) => {
+            const channels = response['channels'];
+            for (const channel in channels) {
+                if (channel['private'] === false) {
+                    createChannelLabel('public', channel['name'], channel['id']);
+                } else {
+                    createChannelLabel('private', channel['name'], channel['id']);
+                }
+            }
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+}
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                      Creating a New Channel                    │ */
@@ -449,7 +466,7 @@ const getUserInfo = (userId) => apiFetch('GET', `user/${parseInt(userId)}`, TOKE
 /* │                    Sending Photos in Channels                  │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-
+documen
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                   Viewing Photos in Channels                   │ */
 /* └────────────────────────────────────────────────────────────────┘ */

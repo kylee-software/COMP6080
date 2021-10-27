@@ -229,9 +229,10 @@ li:hover {
 }
 
 .channel-messages-container {
-    display: block;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
     width: 100%;
-    background-color: #FFD4A3;
 }
 
 .channel-text-container {
@@ -483,6 +484,121 @@ input.profile {
 
 .channel-name:focus + .name-hide {
     display: block;
+}
+
+.message-container {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+    gap: 5px;
+}
+
+.member-message-box {
+    width: 100%;
+    height: fit-content;
+    background-color: #fafafa;
+}
+
+.member-message-container {
+    width: 100%;
+    height: fit-content;
+    margin: 10px 0;
+}
+
+.emojis-overlay {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    z-index: 2;
+    position: relative;
+    float: right;
+    padding: 0 10px;
+}
+
+.emoji-reactions-container {
+    display: flex;
+    flex-direction: row;
+    height: fit-content;
+    width: fit-content;
+}
+
+.emoji-style {
+    object-fit: contain;
+    height: 100%;
+    width: 30px;
+}
+
+.user-message-container {
+    width: 100%;
+    height: fit-content;
+    display: inline-grid;
+    grid-template-columns: 1fr 7fr;
+    box-sizing: border-box;
+    gap: 10px;
+    border-radius: 20px;
+    padding: 10px 20px;
+    background-color: #FFD4A3;
+}
+
+.user-message-profile {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    background-color: #E8C195;
+    border-radius: 10px;
+}
+
+.user-message-photo {
+    max-width: 50vm;
+    object-fit: contain;
+}
+
+.user-main-message-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    row-gap: 10px;
+}
+
+.user-message-name, .user-message, .user-reactions {
+    width: 100%;
+    height: fit-content;
+}
+
+.user-reactions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+    /*float: left;*/
+    border-radius: 10px;
+    background-color: #E8C195;
+}
+
+.reacted-emoji {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: fit-content;
+    height: fit-content;
+}
+
+.message-info-container {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 10px;
+    width: 100%;
+    gap: 10px;
 }
 
 .footer {
