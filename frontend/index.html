@@ -235,11 +235,14 @@
             <div class="message-container">
               <div class="user-message-container">
                 <div class="user-message-profile">
-                  <img src="images/logo.png" alt="user profile photo" class="user-message-photo">
+                  <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
                 </div>
                 <div class="user-main-message-container">
                   <div class="user-message-name">
                     <spa>Kylee</spa>
+                  </div>
+                  <div class="user-message-photo">
+                    <img src="images/red-heart.svg" class="user-channel-photo">
                   </div>
                   <div class="user-message">
                     <span role="textbox" contenteditable="true" id="user-channel-message">Channel Name</span>
@@ -261,7 +264,16 @@
             </div>
           </div>
       </div>
-      <div class="channel-text-container">text container</div>
+      <div class="channel-text-container">
+        <input type="text" id="channel-text-box" class="text-box-container">
+        <div id="channel-text-box-image" class="channel-text-box-image">
+          <img src="images/logo.png" class="text-box-image">
+        </div>
+        <div class="sent-channel-message">
+          <img id="channel-upload-photo" alt="upload photo" src="images/upload-photo.svg" class="icon">
+          <button id="sent-channel-message">Sent</button>
+        </div>
+      </div>
     </div>
   </div>
   <script type="module" src="src/main.js"></script>

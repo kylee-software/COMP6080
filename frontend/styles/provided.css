@@ -108,7 +108,7 @@ span.a:hover {
 .main-container {
     display: none;
     grid-gap: 10px;
-    grid-template-columns: 1fr 8fr;
+    grid-template-columns: 1fr 5fr;
     grid-template-rows: 50px 1fr;
     height: 100%;
     gap: 0;
@@ -236,9 +236,47 @@ li:hover {
 }
 
 .channel-text-container {
-    display: block;
-    background-color: #E8C195;
+    display: flex;
+    margin-top: 10px;
     width: 100%;
+    height: fit-content;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fafafa;
+    gap: 5px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid black;
+    box-sizing: border-box;
+}
+
+.text-box-container {
+    display: block;
+    width: 100%;
+    min-height: 50px;
+    height: fit-content;
+    box-sizing: border-box;
+}
+
+.channel-text-box-image {
+    width: 100%;
+    height:fit-content;
+    display: inline-flex;
+    justify-content: flex-start;
+}
+
+.text-box-image {
+    max-width: 50px;
+    object-fit: contain;
+}
+
+.sent-channel-message {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
 }
 
 .channel-popup {
@@ -548,12 +586,12 @@ input.profile {
     align-items: center;
     align-content: center;
     justify-content: center;
-    background-color: #E8C195;
     border-radius: 10px;
+    height: fit-content;
 }
 
-.user-message-photo {
-    max-width: 50vm;
+.user-channel-photo {
+    max-height: 100px;
     object-fit: contain;
 }
 
@@ -566,9 +604,18 @@ input.profile {
     row-gap: 10px;
 }
 
-.user-message-name, .user-message, .user-reactions {
+.user-message-name, .user-message, .user-reactions, .user-message-photo {
     width: 100%;
     height: fit-content;
+}
+
+.user-message-photo {
+    width: 100%;
+    display: inline-flex;
+    height: fit-content;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .user-reactions {
