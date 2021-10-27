@@ -414,13 +414,15 @@ const displayChannelMessages = (channelId) => {
 };
 
 const createChannelMessageBox = (messageId) => {
-    const newMessageBox = document.getElementById('channel-message-box').cloneNode(true);
+    let newMessageBox = document.getElementById('channel-message-box').cloneNode(true);
     newMessageBox.id = messageId.toString();
     const reactionEmojis = newMessageBox.children[0];
+    const messageBody = newMessageBox.children[1];
+    reactionEmojis.id = `reactions-${messageId.toString()}`;
+
     // console.log(reactionEmojis);
 
 };
-
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Message Pagination                    │ */
@@ -465,14 +467,17 @@ document.querySelectorAll('.message-container').forEach(messageBox => {
 document.querySelectorAll('.emoji-reactions-container').forEach(emojis => {
     emojis.addEventListener('click', (event) => {
         let targetEmoji = event.target;
-        let emojiId = (targetEmoji.id).split('-');
-        let messageId = emojiId.pop();
-        let emojiName = emojiId.join('-');
+        // let emojiId = (targetEmoji.id).split('-');
+        // let messageId = emojiId.pop();
+        // let emojiName = emojiId.join('-');
+
+        let messageId = (emojis.id.split('-')).pop();
+        let emojiName = (targetEmoji.src.split('/'))[1].split('.')[0];
 
         apiFetch('POST', `message/react/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, {'react': emojiName})
             .then(() => {
                 createReactedEmoji(emojiName, messageId);
-                document.getElementById(`${emojiName}-reacted-${messageId}`).className = 'reacted-emoji';
+                document.getElementById(`${emojiName}-${messageId}`).className = 'reacted-emoji';
             })
             .catch((errorMsg) => displayErrorMsg(errorMsg));
 
@@ -486,7 +491,6 @@ document.querySelectorAll('.reacted-emoji').forEach(reactedEmoji => {
         const emojiId = reactedEmoji.id;
         let emojiName = emojiId.split('-');
         let messageId = emojiName.pop();
-        emojiName.pop();
         emojiName = emojiName.join('-');
         const reactions = document.getElementById(`message-reactions-${messageId}`);
 
@@ -506,7 +510,7 @@ document.querySelectorAll('.reacted-emoji').forEach(reactedEmoji => {
 
 const createReactedEmoji = (emojiName, messageId) => {
     const reactedEmojis = document.getElementById(`message-reactions-${messageId}`);
-    const emojiId = `${emojiName}-reacted-${messageId}`;
+    const emojiId = `${emojiName}-${messageId}`;
     let newEmoji = document.getElementById(emojiId);
     if (newEmoji === null) {
         newEmoji = document.createElement('div');
