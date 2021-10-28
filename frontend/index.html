@@ -22,46 +22,37 @@
     </div>
     <div class="start-container">
       <div class="start-logo">
-        <img src="images/logo.png" alt="Slackr Logo">
+        <img src="images/logo.png" class="logo-style" alt="Slackr Logo">
       </div>
-      <div id="login">
+      <div class="login-register-container" id="login">
         <div class="input-box">
           <label for="login-email">Email:</label>
           <input type="text" id="login-email" name="login-email">
-        </div>
-        <div class="input-box">
           <label for="login-password">Password:</label>
           <input type="password" id="login-password" name="login-password">
         </div>
         <div class="center">
-          <button type="submit" id="login-submit">Login</button>
+          <button class="start-page-button" type="submit" id="login-submit">Login</button>
         </div>
         <p style="text-align: center">Not a member? <span class="a" id="switch-register">Sign Up</span></p>
       </div>
-      <div id="register" style="display: none">
+      <div id="register" class="login-register-container" style="display: none">
         <div class="input-box">
           <label for="register-email">Email:</label>
           <input type="text" id="register-email" name="register-email">
-        </div>
-        <div class="input-box">
           <label for="register-name">Name:</label>
           <input type="text" id="register-name" name="register-name">
-        </div>
-        <div class="input-box">
           <label for="register-pass">Password:</label>
           <input type="password" id="register-pass" name="register-pass">
-        </div>
-        <div class="input-box">
           <label for="confirm-pass">Confirm Password:</label>
           <input type="password" id="confirm-pass" name="confirm-pass">
         </div>
         <div class="center">
-          <button type="submit" id="register-submit">Register</button>
+          <button class="start-page-button" type="submit" id="register-submit">Register</button>
         </div>
         <p style="text-align: center">Already a member? <span class="a" id="switch-login">Login</span></p>
       </div>
     </div>
-    <div class="footer">footer</div>
   </div>
   <div id="main-page" class="main-container">
     <div class="popup-overlay" id="create-channel-popup">
@@ -181,10 +172,13 @@
         </div>
       </div>
     </div>
-    <div class="header">Header</div>
+
+    <div class="main-page-header">
+      <img src="images/logo.png" class="main-page-logo" alt="Slackr Logo">
+    </div>
     <div class="sidebar">
       <div class="sidebar-items">
-        <div class="channel-label" id="private-channel-label">Private Channels</div>
+        <button class="channel-label" id="private-channel-label">Private Channels</button>
         <div class="icon" id="add-private-channel">
           <img src="images/plus-lg.svg" alt="Add Channel Button">
         </div>
@@ -193,7 +187,7 @@
         <button class="channel" id="channel-item">Private Channel</button>
       </div>
       <div class="sidebar-items">
-        <div class="channel-label" id="joined-public-channel-label">Joined Public Channels</div>
+        <button class="channel-label" id="joined-public-channel-label">Joined Public Channels</button>
       </div>
       <div class="channels-container" id="joined-public-channelLst"></div>
       <div class="sidebar-items">

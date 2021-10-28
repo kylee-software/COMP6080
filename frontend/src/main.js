@@ -45,7 +45,7 @@ const display = (elementId, type) => document.getElementById(elementId).style.di
 
 const displayErrorMsg = (message) => {
     document.getElementById('error-message').innerText = message;
-    display('errorMsg-popup', 'block');
+    display('errorMsg-popup', 'flex');
 }
 
 
@@ -55,11 +55,11 @@ const displayErrorMsg = (message) => {
 
 document.getElementById('switch-register').addEventListener('click', () => {
     display('login', 'none');
-    display('register', 'block');
+    display('register', 'flex');
 })
 
 document.getElementById('switch-login').addEventListener('click', () => {
-    display('login', 'block');
+    display('login', 'flex');
     display('register', 'none');
 })
 
@@ -186,12 +186,12 @@ const listAllChannels = () => {
 
 document.getElementById('add-private-channel').addEventListener('click', () => {
     document.getElementById('create-channel-type').value = 'private';
-    display('create-channel-popup', 'block');
+    display('create-channel-popup', 'flex');
 })
 
 document.getElementById('add-public-channel').addEventListener('click', () => {
     document.getElementById('create-channel-type').value = 'public';
-    display('create-channel-popup', 'block');
+    display('create-channel-popup', 'flex');
 })
 
 document.getElementById('create-channel').addEventListener('click', () => {
@@ -282,7 +282,7 @@ document.getElementById('channel-about').addEventListener('click', () => {
 
                     display('members-container', 'none');
                     display('about-container', 'flex');
-                    display('channel-detail-popup', 'block');
+                    display('channel-detail-popup', 'flex');
                 })
                 .catch((errorMsg) => displayErrorMsg(errorMsg));
         })
@@ -317,7 +317,7 @@ document.getElementById('channel-members').addEventListener('click', () => {
 
     display('members-container', 'flex');
     display('about-container', 'none');
-    display('channel-detail-popup', 'block');
+    display('channel-detail-popup', 'flex');
 })
 
 document.getElementById('channel-detail-popup-close').addEventListener('click', () => {
@@ -822,7 +822,7 @@ const displayUserProfile = (userId) => {
     display('edit-user-bio', 'none');
     display('edit-user-email', 'none');
     display('change-password-box', 'none');
-    display('user-profile-popup', 'block');
+    display('user-profile-popup', 'flex');
 }
 
 const getUserInfo = (userId) => apiFetch('GET', `user/${parseInt(userId)}`, TOKEN, null);
