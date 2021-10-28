@@ -6,6 +6,8 @@ let USER_ID = null;
 let LAST_VISITED_CHANNEL = null;
 // const storeToken = (token) => TOKEN = token;
 // const storeToken = (userId, token) => localStorage.setItem(userId, token);
+let userMessageIdCounter = new Map();
+let userLastVisitedChannel = new Map();
 
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -409,9 +411,25 @@ const displayMemberSrc = (channelName) => {
 /* └────────────────────────────────────────────────────────────────┘ */
 
 const displayChannelMessages = (channelId) => {
-    const channelMessages = document.getElementById('channel-messages');
-
+    let start = 0;
+    let messageCount = 26;
+    while (messageCount > 0) {
+        apiFetch('GET', `message/${LAST_VISITED_CHANNEL}`, TOKEN, start)
+            .then((response) => {
+                loadMessages(response['messages']);
+                messageCount = response['messages'].length;
+                start += 25;
+            }).catch((errorMsg) => {
+                displayErrorMsg(errorMsg);
+            });
+    }
 };
+
+const loadMessages = (messages) => {
+    for (let i = 0; i < messages.length; i++) {
+        createChannelMessageBox(messages[i]);
+    }
+}
 
 const createChannelMessageBox = (messageInfo) => {
     const messageId = messageInfo['id'];
@@ -516,21 +534,130 @@ const createChannelMessageBox = (messageInfo) => {
 /* │                          Message Pagination                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+window.addEventListener('scroll', () => {
+    if (window.screenY + window.innerHeight >= document.documentElement.scrollHeight) {
+        displayChannelMessages(LAST_VISITED_CHANNEL);
+    }
+})
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Sending Messages                      │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+document.getElementById('sent-channel-message').addEventListener('click', () => {
+    const message = document.getElementById('channel-text-box').innerText;
+    const image = document.getElementById('channel-text-box-image').src;
+
+    const body = {
+        'message': message,
+        'image': (image === null) ? '' : image,
+    };
+
+    apiFetch('POST', `message/${LAST_VISITED_CHANNEL}`, TOKEN, body)
+        .then(() => {
+            let messageId = USER_ID.toString();
+            let count = 0;
+            if (userMessageIdCounter.has(USER_ID)) {
+                count = userMessageIdCounter.get(USER_ID) + 1;
+                userMessageIdCounter.set(USER_ID, count);
+            } else {
+                userMessageIdCounter.set(USER_ID, 1);
+                count = 1;
+            }
+
+            messageId = parseInt(messageId + count.toString());
+
+            let messageInfo = {
+                "id": messageId,
+                "message": message,
+                "image": image,
+                "sender": USER_ID,
+                "sentAt": (new Date()).toISOString(),
+                "edited": false,
+                "editedAt": "",
+                "pinned": false,
+                "reacts": [],
+            };
+
+            createChannelMessageBox(messageInfo);
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+
+})
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Deleting Messages                     │ */
 /* └────────────────────────────────────────────────────────────────┘ */
+
+document.getElementById('delete-message').addEventListener('click', () => {
+    const messageId = document.getElementById('save-message-changes').name;
+
+    apiFetch('DELETE', `message/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null)
+        .then(() => {
+            const messageBox = document.getElementById(`channel-message-box-${messageId}`);
+            document.getElementById('channel-messages').removeChild(messageBox);
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+})
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                           Editing Messages                     │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+document.querySelectorAll('.message-info-container').forEach(messageFooter => {
+    messageFooter.children[2].addEventListener('click', () => {
+        const messageId = (messageFooter.children[2].id.split('-')).pop();
+        const message = document.getElementById('edit-message-box');
+        const img = document.getElementById('uploaded-image');
+
+        message.innerText = document.getElementById(`sender-message-${messageId}`).innerText;
+        img.src = document.getElementById(`message-image-${messageId}`).src;
+
+        document.getElementById('save-message-changes').name = messageId;
+        display('edit-message-close', 'block');
+    })
+})
+
+document.getElementById('save-message-changes').addEventListener('click', () => {
+    const messageId = this.name;
+    this.name = '';
+
+    let message = document.getElementById('edit-message-box').innerText;
+    let img = document.getElementById('uploaded-image').src;
+
+    let oldMsg = document.getElementById(`sender-message-${messageId}`).innerText;
+    let oldImg = document.getElementById(`message-image-${messageId}`).src;
+
+    if (message !== oldMsg || img !== oldImg) {
+        const body = {
+            'message': message,
+            'image': img,
+        };
+        apiFetch('PUT', `message/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, body)
+            .then(() => {
+                const editedAt = new Date().toDateString();
+                oldMsg = message;
+                oldImg = img;
+                document.getElementById(`edited-${messageId}`).style.visibility = 'visible';
+                document.getElementById(`createdAt-${messageId}`).innerText = editedAt;
+            })
+            .catch((errorMsg) => displayErrorMsg(errorMsg));
+    } else {
+        message = '';
+        img = '';
+    }
+})
+
+document.getElementById('edit-image').addEventListener('click', () => {
+    const src = "";
+    document.getElementById('uploaded-image').src = src;
+})
+
+
+document.getElementById('edit-message-close').addEventListener('click', () => {
+    display('edit-message-close', 'none');
+})
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                        Reacting to Messages                    │ */
@@ -626,6 +753,26 @@ const createReactedEmoji = (emojiName, messageId) => {
 /* │                          Pinning Messages                      │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+document.querySelectorAll('.message-info-container').forEach(messageFooter => {
+    const target = messageFooter.children[3];
+    target.addEventListener('click', () => {
+        const messageId = target.id.split('-').pop();
+
+        if (target.src === 'images/unpin-message.svg') {
+            apiFetch('POST', `message/pin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null)
+                .then(() => {
+                    document.getElementById(`pinned-${messageId}`).src = 'images/pin-message.svg';
+                })
+                .catch((errorMsg) => displayErrorMsg(errorMsg));
+        } else {
+            apiFetch('POST', `message/unpin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null)
+                .then(() => {
+                    document.getElementById(`pinned-${messageId}`).src = 'images/unpin-message.svg';
+                })
+                .catch((errorMsg) => displayErrorMsg(errorMsg));
+        }
+    })
+})
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                       Milestone 4                                         │ */

@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Slackr</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="styles/provided.css" />
   <script type="module" src="src/helpers.js"></script>
 </head>
@@ -77,10 +77,6 @@
           <div class="input-box">
             <label for="create-channel-type">Channel Type:</label>
             <input type="text" id="create-channel-type" name="Channel Type" value="private" disabled>
-<!--            <select id="create-channel-type" name="Channel Type">-->
-<!--              <option value="private">private</option>-->
-<!--              <option value="public">public</option>-->
-<!--            </select>-->
           </div>
           <div class="input-box">
             <label for="create-channel-description">Description:</label>
@@ -162,6 +158,25 @@
           </div>
           <div class="center">
             <img class="user-profile-icon" src="images/chat.svg" id="message-user">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup-overlay" id="edit-message-popup">
+      <div class="popup">
+        <div class="x-close">
+          <button id="edit-message-close">X</button>
+        </div>
+        <div class="create-channel-box">
+          <div class="input-box">
+            <label for="edit-message-box">Message:</label>
+            <textarea id="edit-message-box" name="Message"></textarea>
+          </div>
+          <div class="input-box" id="uploaded-image"></div>
+          <button id="edit-image">Upload Image</button>
+          <div class="center">
+            <button id="delete-message">Delete Message</button>
+            <button type="submit" id="save-message-changes">Save</button>
           </div>
         </div>
       </div>
@@ -260,7 +275,7 @@
                 <span id="edited">(edited)</span>
                 <span class="message-created-date" id="createdAt">date</span>
                 <img class="icon" id="edit-message" src="images/edit.svg" alt="edit message">
-                <img id="pined" src="images/unpin-message.svg" alt="unpin message">
+                <img id="pinned" src="images/unpin-message.svg" alt="unpin message">
               </div>
           </div>
         </div>
