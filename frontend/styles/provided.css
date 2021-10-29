@@ -10,6 +10,7 @@ html, body {
     padding: 0;
     background-color: #fafafa;
     font-family:'Montserrat', 'Roboto', sans-serif;
+    color: #00586E;
 }
 * {
     box-sizing: border-box;
@@ -50,7 +51,6 @@ html, body {
     height: fit-content;
     margin-bottom: 10px;
 }
-
 .error-message {
     width: 100%;
     height: fit-content;
@@ -222,50 +222,99 @@ input {
 
 .sidebar {
     grid-area: sidebar;
-    padding: 10px;
+    padding: 20px 10px;
     overflow: auto;
     display: flex;
     flex-direction: column;
     width: 100%;
     background: #ecf0f3;
-    box-shadow:  inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF;
-    box-sizing: border-box;
-}
-
-button.channel-label {
-    border: 0;
-    outline: 0;
+    gap: 10px;
     border-radius: 20px;
-    padding: 5px;
-    background-color: #EBECF0;
-    text-shadow: 1px 1px 0 #FAFAFA;
+    box-shadow: 10px 5px 10px #BABECC;
     box-sizing: border-box;
 }
-
 .sidebar-items {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
     width: 100%;
-    background-color: white;
+    gap: 10px;
+    box-sizing: border-box;
 }
-
 button.channel-label {
+    border: 0;
+    outline: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    padding: 5px;
+    background-color: #E1EEFF;
+    text-shadow: 1px 1px 0 #FAFAFA;
+    box-sizing: border-box;
     color: #61677C;
     font-weight: bold;
-    box-shadow: -5px -5px 20px #FFF, 5px 5px 20px #BABECC;
+    box-shadow: -2px -2px 5px #FFF, 2px 2px 5px #BABECC;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
 }
 button.channel-label:hover {
-    box-shadow: -2px -2px 5px #FFF, 2px 2px 5px #BABECC;
+    box-shadow: inset 4px 2px 3px #C8D4E3;
 }
 button.channel-label:active {
-         box-shadow: inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF;
-     }
-
-
-
+    box-shadow: inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF;
+}
+button.icon {
+    border: 0;
+    outline: 0;
+    border-radius: 5px;
+    background-color: #FFEDD4;
+    text-shadow: 1px 1px 0 #FAFAFA;
+    box-sizing: border-box;
+    color: #61677C;
+    font-weight: bold;
+    box-shadow: -5px -5px 10px #FFF, 3px 3px 10px #FFD4A3;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+button.icon:hover {
+    box-shadow: -2px -2px 5px #FFF, 2px 2px 5px #CCAA83;
+}
+button.icon:active {
+    box-shadow: inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF;
+}
+.channels-container {
+    display: flex;
+    /*display: none;*/
+    width: 100%;
+    height: fit-content;
+    flex-direction: column;
+    background: #F7FCFF;
+    box-shadow: inset 2px 2px 3px #BABECC, inset -1px -1px 2px #FFF;
+    padding: 10px;
+    box-sizing: border-box;
+}
+button.channel {
+    border: 0;
+    outline: 0;
+    border-radius: 10px;
+    padding: 5px;
+    background-color: #EBECF0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    width: 100%;
+    color: #00586E;
+    font-size: 12px;
+    box-shadow: -5px -5px 20px #FFF, 5px 5px 20px #BABECC;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.channel:hover, .channel:focus {
+    background-color: #C8D4E3;
+    color: #00586E;
+    font-weight: bold;
+}
 
 textarea {
     display: block;
@@ -283,31 +332,9 @@ span.a:hover {
     cursor: pointer;
 }
 
-.sidebar-items:hover {
-    background-color: #E8C195;
-}
-
-.icon {
-    width: fit-content;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    box-sizing: border-box;
-}
-.icon:hover {
-    background-color: #fafafa;
-}
 
 .channel-label {
     width: 90%
-}
-
-.channels-container {
-    display: flex;
-    /*display: none;*/
-    width: 100%;
-    height: fit-content;
-    flex-direction: column;
 }
 
 .channel {
@@ -321,11 +348,6 @@ span.a:hover {
     cursor: pointer;
     box-sizing: border-box;
     display: none;
-}
-
-.channel:hover, .channel:focus {
-    font-weight: bold;
-    background-color: #E8C195;
 }
 
 .create-channel-box {
