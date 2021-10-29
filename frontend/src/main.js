@@ -263,7 +263,7 @@ document.getElementById('public-channelLst').addEventListener('click', (event) =
 
 // Change channel name
 document.getElementById('channel-name-label').addEventListener('blur', () => {
-    const channelName = document.getElementById('channel-name-label').innerText;
+    const channelName = document.getElementById('channel-name-label').value;
     updateChanelDetails(channelName, null);
 })
 
@@ -337,7 +337,7 @@ document.getElementById('leave-channel').addEventListener('click', () => {
             } else {
                 publicChannelLst.appendChild(targetChannel);
                 joinedChannelLst.removeChild(targetChannel);
-                displayNonMemberSrc(targetChannel.innerText);
+                displayNonMemberSrc(targetChannel.value);
             }
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
@@ -352,7 +352,7 @@ document.getElementById('join-channel').addEventListener('click', () => {
 
             joinedChannelLst.appendChild(targetChannel);
             publicChannelLst.removeChild(targetChannel);
-            displayMemberSrc(targetChannel.innerText);
+            displayMemberSrc(targetChannel.value);
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 })
@@ -385,7 +385,7 @@ const createMemberBox = (userId, profilePic, name) => {
 
 const displayNonMemberSrc = (channelName) => {
     document.getElementById('channel-name-label').readOnly = true;
-    document.getElementById('channel-name-label').innerText = channelName;
+    document.getElementById('channel-name-label').value = channelName;
     display('channel-about', 'none');
     display('channel-members', 'none');
     display('leave-channel', 'none');
@@ -394,7 +394,7 @@ const displayNonMemberSrc = (channelName) => {
 
 const displayMemberSrc = (channelName) => {
     document.getElementById('channel-name-label').readOnly = false;
-    document.getElementById('channel-name-label').innerText = channelName;
+    document.getElementById('channel-name-label').value = channelName;
     display('channel-about', 'inline-flex');
     display('channel-members', 'inline-flex');
     display('leave-channel', 'inline-flex');

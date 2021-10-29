@@ -14,9 +14,9 @@
   <div id="start-page" class="start-page">
     <div class="popup-overlay" id="errorMsg-popup">
       <div class="popup">
-        <div class="x-close">
-          <button id="errorMsg-popup-close">X</button>
-        </div>
+          <button id="errorMsg-popup-close" class="close">
+            <img src="images/close.svg">
+          </button>
         <div class="error-message" id="error-message"></div>
       </div>
     </div>
@@ -27,9 +27,9 @@
       <div id="login" class="login-register-container">
         <div class="input-box">
           <label for="login-email">Email:</label>
-          <input type="text" id="login-email" name="login-email">
+          <input type="text" id="login-email" name="login-email" class="login-register">
           <label for="login-password">Password:</label>
-          <input type="password" id="login-password" name="login-password">
+          <input type="password" id="login-password" name="login-password" class="login-register">
         </div>
         <div class="center">
           <button class="start-page-button" type="submit" id="login-submit">Login</button>
@@ -39,13 +39,13 @@
       <div id="register" class="login-register-container" style="display: none">
         <div class="input-box">
           <label for="register-email">Email:</label>
-          <input type="text" id="register-email" name="register-email">
+          <input type="text" id="register-email" name="register-email" class="login-register">
           <label for="register-name">Name:</label>
-          <input type="text" id="register-name" name="register-name">
+          <input type="text" id="register-name" name="register-name" class="login-register">
           <label for="register-pass">Password:</label>
-          <input type="password" id="register-pass" name="register-pass">
+          <input type="password" id="register-pass" name="register-pass" class="login-register">
           <label for="confirm-pass">Confirm Password:</label>
-          <input type="password" id="confirm-pass" name="confirm-pass">
+          <input type="password" id="confirm-pass" name="confirm-pass" class="login-register">
         </div>
         <div class="center">
           <button class="start-page-button" type="submit" id="register-submit">Register</button>
@@ -81,7 +81,7 @@
     </div>
     <div class="popup-overlay" id="channel-detail-popup">
       <div class="channel-popup">
-        <div class="x-close">
+        <div class="close">
           <button id="channel-detail-popup-close">X</button>
         </div>
         <div class="channel-popup-header">
@@ -202,27 +202,27 @@
     <div class="main">
       <div class="channel-header">
         <div class="channel-name-container">
-          <span class="channel-name" role="textbox" contenteditable="true" id="channel-name-label">Channel Name</span>
+          <input class="channel-name" id="channel-name-label">
           <img src="images/edit.svg" class="name-hide" id="edit-channel-name">
         </div>
-        <ul>
-          <li id="channel-about">
+        <div class="channel-nav-container">
+          <div id="channel-about" class="channel-nav-item">
             <img src="images/channel-info.svg" alt="channel info">
             <span>About</span>
-          </li>
-          <li id="channel-members">
+          </div>
+          <div id="channel-members" class="channel-nav-item">
             <img src="images/channel-members.svg" alt="channel-members">
             <span>Members</span>
-          </li>
-          <li id="leave-channel">
+          </div>
+          <div id="leave-channel" class="channel-nav-item">
             <img src="images/leave-channel.svg" alt="leave channel">
             <span>Leave</span>
-          </li>
-          <li id="join-channel">
+          </div>
+          <div id="join-channel" class="channel-nav-item">
             <img src="images/join-channel.svg" alt="join channel">
             <span>Join</span>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
       <div id="channel-messages" class="channel-messages-container">
         <div id="channel-message-box" class="member-message-container">
@@ -244,33 +244,29 @@
               </div>
           <div class="message-container">
             <div class="user-message-container">
-                <div id="sender-profile" class="user-message-profile">
-                  <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
+              <div id="sender-profile" class="user-message-profile">
+                <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
+              </div>
+              <div class="user-main-message-container">
+                <span id="sender-name" class="user-message-name">Kylee</span>
+                <div class="user-message">
+                  <span id="sender-message">Channel Name</span>
+                  <img id="message-image" src="images/red-heart.svg" class="user-channel-photo">
                 </div>
-                <div class="user-main-message-container">
-                  <div class="user-message-name">
-                    <spa id="sender-name">Kylee</spa>
-                  </div>
-                  <div class="user-message">
-                    <span role="textbox" contenteditable="true" id="sender-message">Channel Name</span>
-                  </div>
-                  <div class="user-message-photo">
-                    <img src="images/red-heart.svg" class="user-channel-photo" id="message-image">
-                  </div>
-                  <div class="user-reactions" id="message-reactions">
-<!--                    <div class="reacted-emoji">-->
-<!--                      <img src="images/face-with-rolling-eyes.svg" class="emoji-style">-->
-<!--                      <span>2</span>-->
-<!--                    </div>-->
+                <div class="user-reactions" id="message-reactions">
+                  <div class="reacted-emoji">
+                    <img src="images/face-with-rolling-eyes.svg" class="emoji-style">
+                    <span>2</span>
                   </div>
                 </div>
               </div>
+            </div>
             <div id="message-footer-messageId" class="message-info-container">
-                <span id="edited">(edited)</span>
-                <span class="message-created-date" id="createdAt">date</span>
-                <img class="icon" id="edit-message" src="images/edit.svg" alt="edit message">
-                <img id="pinned" src="images/unpin-message.svg" alt="unpin message">
-              </div>
+              <span id="edited">(edited)</span>
+              <span id="createdAt">date</span>
+              <img id="edit-message" class="icon" src="images/edit.svg" alt="edit message">
+              <img id="pinned" class="pinned" src="images/unpin-message.svg" alt="unpin message">
+            </div>
           </div>
         </div>
       </div>
@@ -279,9 +275,12 @@
         <div id="channel-text-box-image" class="channel-text-box-image">
           <img src="images/logo.png" class="text-box-image">
         </div>
-        <div class="sent-channel-message">
-          <img id="channel-upload-photo" alt="upload photo" src="images/upload-photo.svg" class="icon">
-          <button id="sent-channel-message">Sent</button>
+        <div class="channel-message-footer">
+          <div id="channel-upload-photo" class="upload-photo">
+            <img alt="upload photo" src="images/upload-photo.svg">
+            <span> Upload Photo</span>
+          </div>
+          <span id="sent-channel-message" class="sent-message">Sent</span>
         </div>
       </div>
     </div>
