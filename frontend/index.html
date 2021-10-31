@@ -14,9 +14,9 @@
   <div id="start-page" class="start-page">
     <div class="popup-overlay" id="errorMsg-popup">
       <div class="popup">
-          <button id="errorMsg-popup-close" class="close">
-            <img src="images/close.svg">
-          </button>
+        <div class="close-container">
+          <img id="errorMsg-popup-close" src="images/close.svg" class="popup-close">
+        </div>
         <div class="error-message" id="error-message"></div>
       </div>
     </div>
@@ -57,103 +57,105 @@
   <div id="main-page" class="main-container">
     <div class="popup-overlay" id="create-channel-popup">
       <div class="popup">
-        <div class="x-close">
-          <button id="create-channel-close">X</button>
+        <div class="close-container">
+          <img id="create-channel-close" src="images/close.svg" class="popup-close">
         </div>
         <div class="create-channel-box">
-          <div class="input-box">
-            <label for="create-channel-name">Channel Name:</label>
-            <input type="text" id="create-channel-name" name="Channel Name">
+          <div>
+            <span>Channel Name:</span><input id="create-channel-name" class="create-channel-field">
           </div>
-          <div class="input-box">
-            <label for="create-channel-type">Channel Type:</label>
-            <input type="text" id="create-channel-type" name="Channel Type" value="private" disabled>
+          <div>
+            <span>Channel Type:</span>
+            <span id="create-channel-type" class="create-channel-field">private</span>
           </div>
-          <div class="input-box">
-            <label for="create-channel-description">Description:</label>
-            <textarea id="create-channel-description" name="confirm-pass"></textarea>
+          <div class="channel-description-box">
+            <div style="display: flex; justify-content: flex-start; width: 100%">
+              <span>Description:</span>
+            </div>
+            <span id="create-channel-description" role="textbox" contenteditable="true" class="description-box"></span>
+            <img src="images/edit.svg" class="description-hide">
           </div>
           <div class="center">
-            <button type="submit" id="create-channel">Create Channel</button>
+            <span id="create-channel" class="create-channel-submit">Create Channel</span>
           </div>
         </div>
       </div>
     </div>
     <div class="popup-overlay" id="channel-detail-popup">
-      <div class="channel-popup">
-        <div class="close">
-          <button id="channel-detail-popup-close">X</button>
+      <div class="popup">
+        <div class="close-container">
+          <img id="channel-detail-popup-close" src="images/close.svg" class="popup-close">
         </div>
         <div class="channel-popup-header">
           <span id="channel-title-popup"></span>
-          <img src="images/invite.svg" id="channel-invite" style="display: none">
+          <img src="images/invite.svg" id="channel-invite" style="display: none; cursor: pointer">
         </div>
         <div class="channel-pop-body" id="channel-popup-body">
+          <div class="about-container" id="about-container">
+            <div>
+              <span>Channel Creator:</span><span id="channel-creator" class="channel-popup-field"></span>
+            </div>
+            <div>
+              <span>Time Created:</span><span id="channel-create-date" class="channel-popup-field"></span>
+            </div>
+            <div class="channel-description-box">
+              <div style="display: flex; justify-content: flex-start; width: 100%">
+                <span>Description:</span>
+              </div>
+              <span role="textbox" contenteditable="true" class="description-box" id="channel-description"></span>
+              <img src="images/edit.svg" class="description-hide">
+            </div>
+          </div>
           <div id="members-container">
             <div class="member-info-box" id="member-info-box">
               <img src="images/logo.png" class="profile-pic">
               <p>Kylee</p>
             </div>
           </div>
-          <div class="about-container" id="about-container">
-            <div class="about-info-box">
-              <span>Channel Creator:</span><span id="channel-creator"></span>
-            </div>
-            <div class="about-info-box">
-              <span>Time Created:</span><span id="channel-create-date">Jan-1</span>
-            </div>
-            <div>
-              <div class="about-info-box">
-                <span>Description:</span>
-                <img src="images/edit.svg" class="description-hide">
-              </div>
-              <span role="textbox" contenteditable="true" class="description-box" id="channel-description"></span>
-              <img src="images/edit.svg" class="description-hide">
-            </div>
-          </div>
         </div>
       </div>
     </div>
     <div class="popup-overlay" id="user-profile-popup">
-      <div class="user-profile-popup">
-        <div class="x-close">
-          <button id="user-profile-popup-close">X</button>
+      <div class="popup">
+        <div class="close-container">
+          <img id="user-profile-popup-close" src="images/close.svg" class="popup-close">
         </div>
         <div class="user-photo-container">
           <img class="user-profile-photo" id="user-profile-photo" src="images/logo.png">
-          <img class="user-profile-icon" id="upload-photo" src="images/upload-photo.svg">
-          <label for="upload-photo" id="upload-photo-label">Upload Photo</label>
+          <div class="upload-photo-container" id="upload-photo-container">
+            <img class="user-profile-icon" id="upload-photo" src="images/upload-photo.svg">
+            <label for="upload-photo" id="upload-photo-label">Upload Photo</label>
+          </div>
         </div>
         <div class="user-profile-body">
-          <div class="profile-header-box">
+          <div class="profile-body-box">
             <span class="profile-name-box" role="textbox" contenteditable="true" id="user-name">Kylee</span>
             <img class="user-profile-icon" id="edit-user-name" src="images/edit.svg">
           </div>
-          <div class="profile-header-box">
+          <div class="profile-body-box">
             <span class="profile-bio-box" role="textbox" contenteditable="true" id="user-bio">Hellooo</span>
             <img class="user-profile-icon" id="edit-user-bio" src="images/edit.svg">
           </div>
-          <div class="profile-box">
+          <div class="edit-profile-box">
             <div class="profile-body-box">
               <img class="user-profile-icon" src="images/email.svg">
               <input type="text" class="profile" id="user-email">
             </div>
             <img class="user-profile-icon" id="edit-user-email" src="images/edit.svg">
           </div>
-          <div class="profile-box" id="change-password-box">
+          <div class="edit-profile-box" id="change-password-box">
             <div class="profile-body-box">
               <img class="user-profile-icon" src="images/password.svg">
               <input type="text" class="profile" id="user-password">
             </div>
             <img class="user-profile-icon" id="edit-user-password" src="images/edit.svg">
-          </div>
-          <div class="center">
-            <img class="user-profile-icon" src="images/chat.svg" id="message-user">
+            <img class="user-profile-icon" id="hide-password" src="images/hide-password.svg">
+            <img class="user-profile-icon" id="show-password" src="images/show-password.svg">
           </div>
         </div>
       </div>
     </div>
-    <div class="popup-overlay" id="edit-message-popup">
+    <div class="popup-overlay" id="edit-message-popup" style="display: flex">
       <div class="popup">
         <div class="x-close">
           <button id="edit-message-close">X</button>

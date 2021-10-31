@@ -13,9 +13,10 @@ html, body {
     color: #00586E;
 }
 
-/* ┌────────────────────────────────────────────────────────────────┐ */
-/* │                      Popup and Overlay                         │ */
-/* └────────────────────────────────────────────────────────────────┘ */
+/* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
+/* │                                      Popup and Overlay                                    │ */
+/* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
+
 .popup-overlay {
     position: fixed;
     width: 100%;
@@ -31,17 +32,36 @@ html, body {
 }
 .popup {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    max-width: 350px;
     height: fit-content;
-    width: fit-content;
-    border-radius: 10px;
-    box-sizing: border-box;
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
     padding: 20px 40px;
-    background-color: #EBECF0;
-    box-shadow:  inset 2px 2px 5px #cbced1, inset -5px -5px 10px white;
-    transition: all 0.2s ease-in-out;
+    overflow: hidden;
+    box-sizing: border-box;
+    border-radius: 20px;
+    background: #F7FCFF;
 }
+.close-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+.popup-close {
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #FFEDD4;
+    box-shadow: 3px -3px 10px #FFD4A3;;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* ┌────────────────────────────────────────────────────────────────┐ */
+/* │                      Error Message Popup                       │ */
+/* └────────────────────────────────────────────────────────────────┘ */
 /*.x-close {*/
 /*    display: flex;*/
 /*    justify-content: flex-end;*/
@@ -49,19 +69,6 @@ html, body {
 /*    height: fit-content;*/
 /*    margin-bottom: 10px;*/
 /*}*/
-.close {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 5px;
-    margin-bottom: 20px;
-    background-color: #FFEDD4;
-    border: 0;
-    border-radius: 5px;
-    box-shadow: #CCA76C 0 0 16px;
-    box-sizing: border-box;
-    cursor: pointer;
-}
 .error-message {
     width: 100%;
     height: fit-content;
@@ -69,25 +76,213 @@ html, body {
     overflow-wrap: break-word;
     hyphens: manual;
 }
-.channel-popup {
-    position: relative;
-    max-width: 350px;
+
+/* ┌────────────────────────────────────────────────────────────────┐ */
+/* │                        Channel Details Popup                   │ */
+/* └────────────────────────────────────────────────────────────────┘ */
+
+.channel-popup-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 20px;
+    border-bottom: 1px solid darkgrey;
+    height: fit-content;
+    padding-bottom: 5px;
+    font-weight: bold;
+    font-size: 25px;
+    box-sizing: border-box;
+}
+.channel-pop-body {
+    display: flex;
+    width: 100%;
+    padding: 10px 5px;
+    flex-direction: column;
+    height: 230px;
+    overflow: auto;
+    margin-top: 10px;
+    box-sizing: border-box;
+    background: #FFF;
+    box-shadow: #32325D3F 0 6px 12px -2px, #0000004C 0 3px 7px -3px;
+}
+.channel-popup-field {
+    font-weight: bold;
+    font-size: 14px;
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #FFEDD4;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+.channel-description-box {
+    display: block;
+    width: 100%;
+    height: fit-content;
+}
+.description-box {
+    display: block;
+    width: 100%;
+    height: fit-content;
+    min-height: 50px;
+    background-color: #fafafa;
+    margin: 5px 0;
+    padding: 5px;
+    box-sizing: border-box;
+    box-shadow: #32325D3F 0 2px 5px -1px, #0000004C 0 1px 3px -1px;
+}
+.description-box:hover, .description-box:focus {
+    outline: 0;
+    background-color: #EBEFF2;;
+}
+.description-box:hover + .description-hide {
+    display: block;
+}
+.description-box:focus + .description-hide {
+    display: block;
+}
+.description-hide {
+    display: none;
+    float: right;
+}
+.member-info-box {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+    padding-left: 10px;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+.member-info-box:hover {
+    cursor: pointer;
+    background-color: #FFEDD4;
+}
+
+/* ┌────────────────────────────────────────────────────────────────┐ */
+/* │                       Create Channel Popup                     │ */
+/* └────────────────────────────────────────────────────────────────┘ */
+
+.create-channel-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+.create-channel-field {
+    width: fit-content;
+    font-size: 14px;
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #FFEDD4;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+.create-channel-box div {
+    width: 100%;
+}
+.create-channel-submit {
+    font-weight: bold;
+    font-size: 14px;
+    display: block;
+    width: fit-content;
+    height: fit-content;
+    padding: 5px;
+    box-sizing: border-box;
+    background-color: #E1EEFF;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+/* ┌────────────────────────────────────────────────────────────────┐ */
+/* │                      User Profile Popup                        │ */
+/* └────────────────────────────────────────────────────────────────┘ */
+
+.user-photo-container {
+    width: 100%;
+    max-height: fit-content;
+    flex-direction: column;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 1px solid darkgrey;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+}
+.upload-photo-container {
+    display: inline-block;
+    align-content: center;
+    width: 100%;
+    align-items: center;
+}
+.user-profile-photo {
+    height: 150px;
+    width: 150px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: -3px -3px 10px #BABECC, 3px 3px 10px #BABECC;
+    box-sizing: border-box;
+}
+.user-profile-icon {
+    height: 25px;
+    width: 20px;
+    object-fit: contain;
+    alignment: center;
+}
+.user-profile-body {
+    width: 100%;
     height: fit-content;
     display: flex;
     flex-direction: column;
-    width: 100%;
+    justify-content: flex-start;
     align-items: center;
-    justify-content: center;
-    padding: 20px 40px;
-    overflow: hidden;
+    padding: 10px;
+    gap: 10px;
     box-sizing: border-box;
-    border-radius: 20px;
-    background: #ecf0f3;
-    box-shadow: 14px 14px 20px #cbced1, -14px -14px 20px white;
 }
-/* ┌────────────────────────────────────────────────────────────────┐ */
-/* │                 Start Page (Login and Register)                │ */
-/* └────────────────────────────────────────────────────────────────┘ */
+.profile-body-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    height: fit-content;
+    width: 100%;
+    gap: 10px;
+    box-sizing: border-box;
+}
+.profile-name-box {
+    width: fit-content;
+    max-width: 120px;
+    font-size: 20px;
+    font-weight: bold;
+    height: fit-content;
+    max-height: 150px;
+    text-overflow: ellipsis;
+}
+.profile-bio-box {
+    width: fit-content;;
+    max-width: 120px;
+    height: fit-content;
+    font-size: 14px;
+}
+.edit-profile-box {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    height: fit-content;
+    padding: 0 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
+/* │                            Start Page (Login and Register)                                │ */
+/* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
+
 .start-page {
     width:100%;
     height: 100%;
@@ -135,6 +330,7 @@ label, input {
     border: none;
     outline: none;
     box-sizing: border-box;
+    color: #00586E;
 }
 label {
     margin: 10px 0;
@@ -611,10 +807,8 @@ button.channel {
 }
 
 
-textarea {
-    display: block;
-    width: 100%;
-}
+
+
 span.a {
     color: #006E8A;
     font-weight: bold;
@@ -626,10 +820,6 @@ span.a:hover {
 .channel-label {
     width: 90%
 }
-.create-channel-box {
-    display: block;
-    width: fit-content;
-}
 .sent-channel-message {
     width: 100%;
     height: fit-content;
@@ -638,132 +828,9 @@ span.a:hover {
     align-items: center;
     gap: 10px;
 }
-
-.user-profile-popup {
-    width: 300px;
-    height: fit-content;
-    padding: 10px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    position: absolute;
-    background-color: #FFD4A3;
-    box-sizing: border-box;
-}
-.user-photo-container {
-    max-width: 100%;
-    max-height: fit-content;
-    flex-direction: column;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    border-bottom: 1px solid darkgrey;
-    padding-bottom: 10px;
-    box-sizing: border-box;
-}
-.user-profile-icon {
-    height: 25px;
-    width: 20px;
-    object-fit: contain;
-    alignment: center;
-}
-.user-profile-photo {
-    height: 150px;
-    width: 150px;
-    border: 1px solid black;
-    object-fit: contain;
-    margin-bottom: 10px;
-}
-.user-profile-body {
-    width: 100%;
-    height: fit-content;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 10px;
-    gap: 10px;
-    box-sizing: border-box;
-}
-.profile-header-box {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    height: fit-content;
-    width: 100%;
-    gap: 10px;
-    box-sizing: border-box;
-}
-.profile-box {
-    display: inline-flex;
-    justify-content: space-between;
-    align-items: center;
-    height: fit-content;
-    padding: 0 20px;
-    width: 100%;
-    box-sizing: border-box;
-}
 input.profile {
     width: 150px;
     height: 15px;
-}
-.profile-body-box {
-    display: inline-flex;
-    justify-content: flex-start;
-    gap: 5px;
-    align-items: center;
-}
-.profile-name-box {
-    width: fit-content;
-    max-width: 120px;
-    border: 1px solid black;
-    height: fit-content;
-    max-height: 150px;
-}
-.profile-bio-box {
-    width: fit-content;;
-    max-width: 120px;
-    border: 1px solid black;
-    height: fit-content;
-    max-height: 150px;
-}
-.channel-popup-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 20px;
-    border-bottom: 1px solid darkgrey;
-    height: fit-content;
-    padding-bottom: 10px;
-}
-
-
-.channel-pop-body {
-    display: flex;
-    flex-direction: column;
-    height: 230px;
-    overflow: auto;
-    margin-top: 10px;
-    box-sizing: border-box;
-    background-color: #E8C195;
-}
-
-.member-info-box {
-    /*display: none;*/
-    display: flex;
-    justify-content: flex-start;
-    gap: 20px;
-    align-items: center;
-    width: 100%;
-    height: fit-content;
-    padding-left: 10px;
-    border-radius: 10px;
-    box-sizing: border-box;
-}
-
-.member-info-box:hover {
-    cursor: pointer;
-    background-color: beige;
 }
 
 .profile-pic {
@@ -783,51 +850,10 @@ input.profile {
     box-sizing: border-box;
 }
 
-.about-info-box {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 5px;
-    width: 100%;
-    height: fit-content;
-    overflow-wrap: break-word;
-    hyphens: manual;
-}
-
 .name-hide {
     display: none;
 }
 
-.description-hide {
-    display: none;
-    float: right;
-}
-
-.description-box {
-    display: block;
-    width: 100%;
-    height: fit-content;
-    min-height: 50px;
-    background-color: #fafafa;
-    border: 1px solid black;
-    margin-bottom: 5px;
-}
-
-.description-box:hover {
-    background-color: #FFD4A3;;
-}
-
-.description-box:hover + .description-hide {
-    display: block;
-}
-
-.description-box:focus {
-    background-color: #FFD4A3;;
-}
-
-.description-box:focus + .description-hide {
-    display: block;
-}
 
 
 .member-message-box {
