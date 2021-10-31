@@ -155,21 +155,29 @@
         </div>
       </div>
     </div>
-    <div class="popup-overlay" id="edit-message-popup" style="display: flex">
+    <div class="popup-overlay" id="edit-message-popup">
       <div class="popup">
-        <div class="x-close">
-          <button id="edit-message-close">X</button>
+        <div class="close-container">
+          <img id="edit-message-close" src="images/close.svg" class="popup-close">
         </div>
-        <div class="create-channel-box">
-          <div class="input-box">
-            <label for="edit-message-box">Message:</label>
-            <textarea id="edit-message-box" name="Message"></textarea>
+        <div class="edit-message-container">
+          <label for="edit-message-box">Message:</label>
+          <div>
+            <span id="edit-message-box" role="textbox" contenteditable="true" class="edit-message-box"></span>
+            <div class="image-area">
+              <img id="uploaded-photo" src="images/upload-image.svg" class="uploaded-photo">
+              <img id="remove-image" src="images/close.svg" class="remove-image">
+            </div>
           </div>
-          <div class="input-box" id="uploaded-image"></div>
-          <button id="edit-image">Upload Image</button>
-          <div class="center">
-            <button id="delete-message">Delete Message</button>
-            <button type="submit" id="save-message-changes">Save</button>
+        </div>
+        <div class="center">
+          <div id="delete-message" class="channel-nav-item">
+            <img src="images/trash.svg" alt="channel info">
+            <span>Delete</span>
+          </div>
+          <div id="save-message-changes" class="channel-nav-item">
+            <img src="images/save.svg" alt="channel info">
+            <span>Save</span>
           </div>
         </div>
       </div>
@@ -177,6 +185,13 @@
 
     <div class="main-page-header">
       <img src="images/logo.png" class="main-page-logo" alt="Slackr Logo">
+      <div class="right-side-container">
+        <img id="user-profile" src="images/default-image.png" class="user-photo">
+        <div id="logout" class="channel-nav-item">
+          <img src="images/leave-channel.svg" alt="leave channel">
+          <span>Logout</span>
+        </div>
+      </div>
     </div>
     <div class="sidebar">
       <div class="sidebar-items">
@@ -274,8 +289,11 @@
       </div>
       <div class="channel-text-container">
         <input type="text" id="channel-text-box" class="text-box-container">
-        <div id="channel-text-box-image" class="channel-text-box-image">
-          <img src="images/logo.png" class="text-box-image">
+        <div class="channel-text-box-image">
+          <div class="image-area">
+            <img id="channel-text-box-image" src="images/upload-image.svg" class="uploaded-photo">
+            <img id="remove-text-box-image" src="images/close.svg" class="remove-image">
+          </div>
         </div>
         <div class="channel-message-footer">
           <div id="channel-upload-photo" class="upload-photo">
