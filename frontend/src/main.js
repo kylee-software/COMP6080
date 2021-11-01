@@ -48,6 +48,23 @@ const displayErrorMsg = (message) => {
     display('errorMsg-popup', 'flex');
 }
 
+// set cursor at the end of a text
+const setEndCursor = (element) => {
+   element.addEventListener('click', () => {
+       element.focus();
+
+        // Move the cursor to the end
+        if (element.value.length !== 0) {
+            const len = element.value.length;
+            element.setSelectionRange(len, len);
+        } else if (element.innerText.length !== 0) {
+            const len = element.innerText.length;
+            element.setSelectionRange(len, len);
+        } else {
+            element.setSelectionRange(0, 0);
+        }
+    })
+}
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                      Milestone 1                                          │ */
@@ -90,6 +107,17 @@ document.getElementById('login-submit').addEventListener('click', () => {
         });
 })
 
+
+/* ┌────────────────────────────────────────────────────────────────┐ */
+/* │                             Logout                             │ */
+/* └────────────────────────────────────────────────────────────────┘ */
+
+document.getElementById('logout').addEventListener('click', () => {
+    display('start-page', 'block');
+    display('register', 'none');
+    display('main-page', 'none');
+})
+
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                            Register                            │ */
 /* └────────────────────────────────────────────────────────────────┘ */
@@ -117,6 +145,16 @@ document.getElementById('register-submit').addEventListener('click', () => {
                 listAllChannels();
                 document.getElementById('main-page').style.display = 'grid';
                 document.getElementById('start-page').style.display = 'none';
+
+                const userInfo = {
+                    "email": email,
+                    "password": password,
+                    "name": name,
+                    "bio": '',
+                    "image": 'images/default-image.png',
+                };
+
+                editUserProfile(userInfo).catch((errorMsg) => displayErrorMsg(errorMsg));
             })
             .catch((errorMsg) => displayErrorMsg(errorMsg));
     }
@@ -185,19 +223,19 @@ const listAllChannels = () => {
 /* └────────────────────────────────────────────────────────────────┘ */
 
 document.getElementById('add-private-channel').addEventListener('click', () => {
-    document.getElementById('create-channel-type').value = 'private';
+    document.getElementById('create-channel-type').innerText = 'private';
     display('create-channel-popup', 'flex');
 })
 
 document.getElementById('add-public-channel').addEventListener('click', () => {
-    document.getElementById('create-channel-type').value = 'public';
+    document.getElementById('create-channel-type').innerText = 'public';
     display('create-channel-popup', 'flex');
 })
 
 document.getElementById('create-channel').addEventListener('click', () => {
     const name = document.getElementById('create-channel-name').value;
-    const channelType = document.getElementById('create-channel-type').value;
-    const description = document.getElementById('create-channel-description').value;
+    const channelType = document.getElementById('create-channel-type').innerText;
+    const description = document.getElementById('create-channel-description').innerText;
 
     const body = {
         'name': name,
@@ -217,7 +255,7 @@ document.getElementById('create-channel').addEventListener('click', () => {
             display('create-channel-popup', 'none');
 
             document.getElementById('create-channel-name').value = null;
-            document.getElementById('create-channel-description').value = null;
+            document.getElementById('create-channel-description').innerText = null;
         })
         .catch((errorMsg) => {
             displayErrorMsg(errorMsg);
@@ -265,6 +303,8 @@ document.getElementById('public-channelLst').addEventListener('click', (event) =
 document.getElementById('channel-name-label').addEventListener('blur', () => {
     const channelName = document.getElementById('channel-name-label').value;
     updateChanelDetails(channelName, null);
+
+    document.getElementById(LAST_VISITED_CHANNEL.toString()).innerText = channelName;
 })
 
 // View the basic info of the channel
@@ -274,8 +314,7 @@ document.getElementById('channel-about').addEventListener('click', () => {
             getUserInfo(channelInfo['creator'])
                 .then ((creatorInfo) => {
                     const time = new Date(channelInfo['createdAt']).toDateString();
-                    document.getElementById('channel-title-popup').innerText = channelInfo['name'];
-                    // should add a profile pick as well and a link to their bio
+                    document.getElementById('channel-title-popup').innerText = 'About';
                     document.getElementById('channel-creator').innerText = creatorInfo['name'];
                     document.getElementById('channel-create-date').innerText = time;
                     document.getElementById('channel-description').innerText = channelInfo['description'];
@@ -283,6 +322,7 @@ document.getElementById('channel-about').addEventListener('click', () => {
                     display('members-container', 'none');
                     display('about-container', 'flex');
                     display('channel-detail-popup', 'flex');
+                    display('channel-invite', 'none');
                 })
                 .catch((errorMsg) => displayErrorMsg(errorMsg));
         })
@@ -296,28 +336,31 @@ document.getElementById('channel-description').addEventListener('blur', () => {
 
 // View all the members of the channel
 document.getElementById('channel-members').addEventListener('click', () => {
-    document.getElementById('channel-invite').style.display = 'block';
+    display('channel-invite', 'block');
 
     getChannelDetails(LAST_VISITED_CHANNEL)
         .then((channelInfo) => {
             const members = channelInfo['members'];
 
-            for (const member in members) {
+            for (let i = 0; i < members.length; i++) {
+                const member = members[i];
                 getUserInfo(member)
                     .then((userInfo) => {
+                        console.log('hi');
                         const name = userInfo['name'];
                         const photo = userInfo['image'];
                         createMemberBox(member.toString(), photo, name);
+                        console.log('hi');
                     })
                     .catch((errorMsg) => displayErrorMsg(errorMsg));
             }
+
             document.getElementById('channel-title-popup').innerText = `Members ${members.length}`;
+            display('members-container', 'flex');
+            display('about-container', 'none');
+            display('channel-detail-popup', 'flex');
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
-
-    display('members-container', 'flex');
-    display('about-container', 'none');
-    display('channel-detail-popup', 'flex');
 })
 
 document.getElementById('channel-detail-popup-close').addEventListener('click', () => {
@@ -372,14 +415,14 @@ const updateChanelDetails = (name, description) => {
 const createMemberBox = (userId, profilePic, name) => {
     const memberLst = document.getElementById('members-container');
     const newMember = document.getElementById('member-info-box').cloneNode(true);
-    // console.log(newMember.childNodes);
-    const memberPhoto = newMember.childNodes[0];
-    const memberName = newMember.childNodes[1];
+    const memberPhoto = newMember.children[0];
+    const memberName = newMember.children[1];
 
     newMember.id = userId;
     memberPhoto.src = profilePic;
     memberName.innerText = name;
     display(userId, 'flex');
+    console.log(newMember);
     memberLst.appendChild(newMember);
 }
 
@@ -390,6 +433,7 @@ const displayNonMemberSrc = (channelName) => {
     display('channel-members', 'none');
     display('leave-channel', 'none');
     display('join-channel', 'inline-flex');
+    document.getElementById('channel-name-container').style.pointerEvents = 'none';
 }
 
 const displayMemberSrc = (channelName) => {
@@ -399,6 +443,9 @@ const displayMemberSrc = (channelName) => {
     display('channel-members', 'inline-flex');
     display('leave-channel', 'inline-flex');
     display('join-channel', 'none');
+    document.getElementById('channel-name-container').style.pointerEvents = 'auto';
+    const channelNameInput = document.getElementById('channel-name-label');
+    setEndCursor(channelNameInput);
 }
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -649,11 +696,10 @@ document.getElementById('save-message-changes').addEventListener('click', () => 
     }
 })
 
-document.getElementById('edit-image').addEventListener('click', () => {
-    const src = "";
-    document.getElementById('uploaded-image').src = src;
-})
-
+// document.getElementById('edit-image').addEventListener('click', () => {
+//     const src = "";
+//     document.getElementById('uploaded-image').src = src;
+// })
 
 document.getElementById('edit-message-close').addEventListener('click', () => {
     display('edit-message-close', 'none');
@@ -748,7 +794,6 @@ const createReactedEmoji = (emojiName, messageId) => {
     }
 }
 
-
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Pinning Messages                      │ */
 /* └────────────────────────────────────────────────────────────────┘ */
@@ -831,6 +876,17 @@ const getUserInfo = (userId) => apiFetch('GET', `user/${parseInt(userId)}`, TOKE
 /* │              Viewing and Editing User's Own Profile            │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+const editUserProfile = (userInfo) => {
+    const body = {
+        "email": userInfo['email'],
+        "password": userInfo['password'],
+        "name": userInfo['name'],
+        "bio": userInfo['bio'],
+        "image": userInfo['image'],
+    };
+
+    return apiFetch('PUT', 'user', TOKEN, body);
+}
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                     Milestone 5                                           │ */

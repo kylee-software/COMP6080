@@ -146,7 +146,8 @@ html, body {
     float: right;
 }
 .member-info-box {
-    display: flex;
+    display: none;
+    /*display: flex;*/
     justify-content: flex-start;
     gap: 20px;
     align-items: center;
