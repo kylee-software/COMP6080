@@ -11,15 +11,15 @@
 </head>
 
 <body>
-  <div id="start-page" class="start-page">
-    <div class="popup-overlay" id="errorMsg-popup">
-      <div class="popup">
-        <div class="close-container">
-          <img id="errorMsg-popup-close" src="images/close.svg" class="popup-close">
-        </div>
-        <div class="error-message" id="error-message"></div>
+  <div class="error-message-popup" id="errorMsg-popup">
+    <div class="popup">
+      <div class="close-container">
+        <img id="errorMsg-popup-close" src="images/close.svg" class="popup-close">
       </div>
+      <div class="error-message" id="error-message"></div>
     </div>
+  </div>
+  <div id="start-page" class="start-page">
     <div class="start-container">
       <div class="start-logo">
         <img src="images/logo.png" class="logo-style" alt="Slackr Logo">
@@ -117,40 +117,72 @@
     </div>
     <div class="popup-overlay" id="user-profile-popup">
       <div class="popup">
-        <div class="close-container">
-          <img id="user-profile-popup-close" src="images/close.svg" class="popup-close">
-        </div>
-        <div class="user-photo-container">
-          <img class="user-profile-photo" id="user-profile-photo" src="images/logo.png">
-          <div class="upload-photo-container" id="upload-photo-container">
-            <img class="user-profile-icon" id="upload-photo" src="images/upload-photo.svg">
-            <label for="upload-photo" id="upload-photo-label">Upload Photo</label>
+        <div id="display-user-profile" class="profile-container">
+          <div class="close-container">
+            <img id="display-user-profile-popup-close" src="images/close.svg" class="popup-close">
           </div>
-        </div>
-        <div class="user-profile-body">
-          <div class="profile-body-box">
-            <span class="profile-name-box" role="textbox" contenteditable="true" id="user-name">Kylee</span>
-            <img class="user-profile-icon" id="edit-user-name" src="images/edit.svg">
+          <div class="user-photo-container">
+            <img class="user-profile-photo" id="user-profile-photo">
           </div>
-          <div class="profile-body-box">
-            <span class="profile-bio-box" role="textbox" contenteditable="true" id="user-bio">Hellooo</span>
-            <img class="user-profile-icon" id="edit-user-bio" src="images/edit.svg">
-          </div>
-          <div class="edit-profile-box">
+          <div class="user-profile-body">
+            <div class="profile-title-box">
+              <span class="profile-name-box" role="textbox" id="user-name"></span>
+              <span class="profile-bio-box" role="textbox" id="user-bio"></span>
+            </div>
             <div class="profile-body-box">
               <img class="user-profile-icon" src="images/email.svg">
-              <input type="text" class="profile" id="user-email">
+              <input class="profile" id="user-email">
             </div>
-            <img class="user-profile-icon" id="edit-user-email" src="images/edit.svg">
           </div>
-          <div class="edit-profile-box" id="change-password-box">
-            <div class="profile-body-box">
-              <img class="user-profile-icon" src="images/password.svg">
-              <input type="text" class="profile" id="user-password">
+          <div class="profile-title-box" id="edit-user-information">
+            <div class="channel-nav-item">
+              <img src="images/edit.svg" alt="channel info">
+              <span>Edit</span>
             </div>
-            <img class="user-profile-icon" id="edit-user-password" src="images/edit.svg">
-            <img class="user-profile-icon" id="hide-password" src="images/hide-password.svg">
-            <img class="user-profile-icon" id="show-password" src="images/show-password.svg">
+          </div>
+        </div>
+        <div id="edit-user-profile" class="profile-container">
+          <div class="close-container">
+            <img id="edit-user-profile-popup-close" src="images/close.svg" class="popup-close">
+          </div>
+          <div class="user-photo-container">
+            <img class="user-profile-photo" id="profile-image">
+            <div class="upload-photo-container" id="upload-photo-btn">
+              <span>Upload Photo</span>
+              <img class="edit-profile-icon" src="images/upload-photo.svg">
+            </div>
+          </div>
+          <div class="user-profile-body">
+            <div class="profile-body-box">
+              <label for="edit-user-name">Name:</label>
+              <input id="edit-user-name" type="text">
+            </div>
+            <div class="profile-body-box">
+              <label for="edit-user-bio">Bio:</label>
+              <input id="edit-user-bio" type="text">
+            </div>
+            <div class="profile-body-box">
+              <label for="edit-user-email">Email:</label>
+              <input id="edit-user-email" type="text">
+            </div>
+            <div class="profile-body-box">
+              <label for="edit-new-password">New Password:</label>
+              <input id="edit-new-password" type="text">
+              <img class="edit-profile-icon" id="edit-hide-new-password" src="images/hide-password.svg">
+              <img class="edit-profile-icon" id="edit-show-new-password" src="images/show-password.svg">
+            </div>
+            <div class="profile-body-box">
+              <label for="edit-confirm-password">Confirm Password:</label>
+              <input id="edit-confirm-password" type="text">
+              <img class="edit-profile-icon" id="edit-hide-confirm-password" src="images/hide-password.svg">
+              <img class="edit-profile-icon" id="edit-show-confirm-password" src="images/show-password.svg">
+            </div>
+          </div>
+          <div class="profile-title-box" id="save-user-profile-changes">
+            <div class="channel-nav-item">
+              <img src="images/save.svg" alt="channel info">
+              <span>Save</span>
+            </div>
           </div>
         </div>
       </div>

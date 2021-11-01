@@ -1,5 +1,6 @@
+import {BACKEND_PORT} from './config.js';
 // A helper you may want to use when uploading new images to the server.
-
+import {fileToDataUrl} from './helpers.js';
 
 let TOKEN = null;
 let USER_ID = null;
@@ -150,7 +151,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
                     "email": email,
                     "password": password,
                     "name": name,
-                    "bio": '',
+                    "bio": 'empty',
                     "image": 'images/default-image.png',
                 };
 
@@ -346,11 +347,9 @@ document.getElementById('channel-members').addEventListener('click', () => {
                 const member = members[i];
                 getUserInfo(member)
                     .then((userInfo) => {
-                        console.log('hi');
                         const name = userInfo['name'];
                         const photo = userInfo['image'];
                         createMemberBox(member.toString(), photo, name);
-                        console.log('hi');
                     })
                     .catch((errorMsg) => displayErrorMsg(errorMsg));
             }
@@ -415,15 +414,15 @@ const updateChanelDetails = (name, description) => {
 const createMemberBox = (userId, profilePic, name) => {
     const memberLst = document.getElementById('members-container');
     const newMember = document.getElementById('member-info-box').cloneNode(true);
-    const memberPhoto = newMember.children[0];
-    const memberName = newMember.children[1];
+    const memberPhoto = newMember.childNodes[1];
+    const memberName = newMember.childNodes[3];
 
     newMember.id = userId;
     memberPhoto.src = profilePic;
     memberName.innerText = name;
-    display(userId, 'flex');
-    console.log(newMember);
     memberLst.appendChild(newMember);
+    display(userId, 'flex');
+
 }
 
 const displayNonMemberSrc = (channelName) => {
@@ -836,14 +835,14 @@ document.querySelectorAll('.message-info-container').forEach(messageFooter => {
 // display user profile
 document.getElementById('members-container').addEventListener('click', (event) => {
     const targetMember = event.target.id;
-    displayUserProfile(targetMember);
+    displayMemberProfile(targetMember);
 })
 
-document.getElementById('user-profile-popup-close').addEventListener('click', () => {
+document.getElementById('display-user-profile-popup-close').addEventListener('click', () => {
     display('user-profile-popup', 'none');
 })
 
-const displayUserProfile = (userId) => {
+const displayMemberProfile = (userId) => {
     getUserInfo(userId)
         .then((userInfo) => {
             const photo = userInfo['image'];
@@ -854,19 +853,15 @@ const displayUserProfile = (userId) => {
             document.getElementById('user-profile-photo').src = photo;
             document.getElementById('user-name').innerText = name;
             document.getElementById('user-bio').innerText = bio;
-            document.getElementById('user-email').innerText = email;
+            document.getElementById('user-email').value = email;
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 
-    document.getElementById('user-name').contentEditable = 'false';
-    document.getElementById('user-bio').contentEditable = 'false';
     document.getElementById('user-email').readOnly = true;
-    display('upload-photo', 'none');
-    display('upload-photo-label', 'none');
-    display('edit-user-name', 'none');
-    display('edit-user-bio', 'none');
-    display('edit-user-email', 'none');
-    display('change-password-box', 'none');
+
+    display('edit-user-information', 'none');
+    display('display-user-profile', 'flex');
+    display('edit-user-profile', 'none');
     display('user-profile-popup', 'flex');
 }
 
@@ -876,16 +871,128 @@ const getUserInfo = (userId) => apiFetch('GET', `user/${parseInt(userId)}`, TOKE
 /* │              Viewing and Editing User's Own Profile            │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-const editUserProfile = (userInfo) => {
-    const body = {
-        "email": userInfo['email'],
-        "password": userInfo['password'],
-        "name": userInfo['name'],
-        "bio": userInfo['bio'],
-        "image": userInfo['image'],
-    };
+document.getElementById('user-profile').addEventListener('click', () => {
+    displayUserProfile(USER_ID);
+    display('user-profile-popup', 'flex');
+})
+document.getElementById('edit-user-information').addEventListener('click', () => {
+    const image = document.getElementById('profile-image');
+    const name = document.getElementById('edit-user-name');
+    const bio = document.getElementById('edit-user-bio');
+    let email = document.getElementById('edit-user-email');
 
-    return apiFetch('PUT', 'user', TOKEN, body);
+    getUserInfo(USER_ID)
+        .then((userInfo) => {
+            image.src = userInfo['image'];
+            name.value = userInfo['name'];
+            bio.value = userInfo['bio'];
+            email.value = userInfo['email'];
+            console.log(image);
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+
+    display('edit-show-new-password', 'block');
+    display('edit-hide-new-password', 'none');
+    display('edit-show-confirm-password', 'block');
+    display('edit-hide-confirm-password', 'none');
+    display('edit-user-profile', 'flex');
+    display('display-user-profile', 'none');
+})
+document.getElementById('save-user-profile-changes').addEventListener('click', () => {
+    const image = document.getElementById('profile-image');
+    const name = document.getElementById('edit-user-name');
+    const bio = document.getElementById('edit-user-bio');
+    const email = document.getElementById('edit-user-email');
+    const newPassword = document.getElementById('edit-new-password');
+    const confirmPassword = document.getElementById('edit-confirm-password');
+
+    if (newPassword.value !== confirmPassword.value) {
+        displayErrorMsg('Passwords do not match!');
+    } else {
+        const userInfo = {
+            "email": email.value,
+            "password": newPassword.value,
+            "name": name.value,
+            "bio": bio.value,
+            "image": image.src,
+        };
+
+        editUserProfile(userInfo).catch((errorMsg) => displayErrorMsg(errorMsg));
+
+        document.getElementById('user-profile-photo').src = image.src;
+        document.getElementById('user-name').innerText = name.value;
+        document.getElementById('user-bio').innerText = bio.value;
+        document.getElementById('user-email').value = email.value;
+        display('edit-user-profile', 'none');
+        display('display-user-profile', 'flex');
+    }
+
+    newPassword.value = '';
+    confirmPassword.value = '';
+})
+document.getElementById('edit-show-new-password').addEventListener('click', () => {
+    displayPassword(document.getElementById('edit-new-password'), 'show');
+    display('edit-show-new-password', 'none');
+    display('edit-hide-new-password', 'inline');
+})
+document.getElementById('edit-hide-new-password').addEventListener('click', () => {
+    displayPassword(document.getElementById('edit-new-password'), 'hide');
+    display('edit-hide-new-password', 'none');
+    display('edit-show-new-password', 'inline');
+})
+document.getElementById('edit-show-confirm-password').addEventListener('click', () => {
+    displayPassword(document.getElementById('edit-confirm-password'), 'show');
+    display('edit-show-confirm-password', 'none');
+    display('edit-hide-confirm-password', 'inline');
+})
+document.getElementById('edit-hide-confirm-password').addEventListener('click', () => {
+    displayPassword(document.getElementById('edit-confirm-password'), 'hide');
+    display('edit-hide-confirm-password', 'none');
+    display('edit-show-confirm-password', 'inline');
+})
+document.getElementById('edit-user-profile-popup-close').addEventListener('click', () => {
+    display('edit-user-profile', 'none');
+    display('display-user-profile', 'flex');
+})
+// document.getElementById('upload-photo-btn').addEventListener('click', () => {
+//
+//     // upload photo;
+//
+// })
+
+const displayUserProfile = (userId) => {
+    getUserInfo(userId)
+        .then((userInfo) => {
+            const photo = userInfo['image'];
+            const name = userInfo['name'];
+            const bio = userInfo['bio'];
+            const email = userInfo['email'];
+            const password = userInfo['password'];
+
+            document.getElementById('user-profile-photo').src = photo;
+            document.getElementById('user-name').innerText = name;
+            document.getElementById('user-bio').innerText = bio;
+            document.getElementById('user-email').value = email;
+
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+
+    document.getElementById('user-email').readOnly = true;
+
+    display('edit-user-information', 'flex');
+    display('display-user-profile', 'flex');
+    display('edit-user-profile', 'none');
+    display('user-profile-popup', 'flex');
+};
+const displayPassword = (element, type) => {
+    if (type === 'hide') {
+        element.type = 'password';
+    } else {
+        element.type = 'text';
+    }
+}
+const editUserProfile = (userInfo) => {
+    return apiFetch('PUT', 'user', TOKEN, userInfo);
 }
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
