@@ -65,15 +65,20 @@ const setEndCursor = (element) => {
     })
 }
 
-const getMessageId = (userId) => {
-    let count = userMessageIdCounter.get(userId);
+const getMessageId = (channelId) => {
+    let count = userMessageIdCounter.get(channelId);
     if (count !== undefined) {
         count += 1;
     } else {
-        count = 1;
+        count = 0;
     }
-    userMessageIdCounter.set(userId, count);
-    return parseInt(userId.toString() + count.toString());
+    userMessageIdCounter.set(channelId, count);
+
+    return apiFetch('GET', `message/${channelId}?start=${count}`, TOKEN, null)
+        .then((messages) => {
+            return messages['messages'][0]['id'];
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
 }
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -441,11 +446,9 @@ const displayNonMemberSrc = (channelName) => {
     display('leave-channel', 'none');
     display('join-channel', 'inline-flex');
     document.getElementById('channel-name-container').style.pointerEvents = 'none';
-    document.getElementById('channel-text-box').readOnly = true;
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'not-allowed';
-    // do a remove event listenr
-
+    sentMsgBtn.removeEventListener('click', sentMessage);
 }
 
 const displayMemberSrc = (channelName) => {
@@ -460,6 +463,7 @@ const displayMemberSrc = (channelName) => {
     setEndCursor(channelNameInput);
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'pointer';
+    sentMsgBtn.addEventListener('click', sentMessage);
 }
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -539,7 +543,7 @@ const createChannelMessageBox = (messageInfo) => {
     const reactedEmojis = messageBodyRight.children[2];
     reactedEmojis.id = `${reactedEmojis.id}-${messageId.toString()}`;
 
-    const messageBoxFooter = messageContainer.children[1];
+    const messageBoxFooter = newMessageBox.children[2];
 
     // edited label
     const editedLabel = messageBoxFooter.children[0];
@@ -549,7 +553,7 @@ const createChannelMessageBox = (messageInfo) => {
     const createdAtLabel = messageBoxFooter.children[1];
     createdAtLabel.id = `${createdAtLabel.id}-${messageId.toString()}`;
 
-    // edit message
+    // edit message button
     const editMessageIcon = messageBoxFooter.children[2];
     editMessageIcon.id = `${editMessageIcon.id}-${messageId.toString()}`;
 
@@ -595,7 +599,11 @@ const createChannelMessageBox = (messageInfo) => {
     }
 
     display(newMessageBox.id, 'flex');
-
+    messageBody.addEventListener('click', () => displayEmojis(messageId));
+    editMessageIcon.addEventListener('click', () => displayEditMsgPopup(messageId));
+    reactionEmojis.addEventListener('click', (event) => {
+        reactMessage(messageId, event.target);
+    })
 };
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -611,37 +619,40 @@ window.addEventListener('scroll', () => {
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Sending Messages                      │ */
 /* └────────────────────────────────────────────────────────────────┘ */
+//
 
-document.getElementById('sent-channel-message').addEventListener('click', () => {
-    const message = document.getElementById('channel-text-box').value;
-    const image = document.getElementById('channel-text-box-image').src;
+const sentMessage = () => {
+    const message = document.getElementById('channel-text-box');
+    const image = document.getElementById('channel-text-box-image');
 
     const body = {
-        'message': message,
-        'image': (image === 'images/upload-image.svg') ? '' : image,
+        'message': message.value,
+        'image': (image.src === 'images/upload-image.svg') ? '' : image.src,
     };
 
     apiFetch('POST', `message/${LAST_VISITED_CHANNEL}`, TOKEN, body)
         .then(() => {
-            const messageId = getMessageId(USER_ID);
+            getMessageId(LAST_VISITED_CHANNEL).then((messageId) => {
 
-            let messageInfo = {
-                "id": messageId,
-                "message": message,
-                "image": image,
-                "sender": USER_ID,
-                "sentAt": (new Date()).toISOString(),
-                "edited": false,
-                "editedAt": "",
-                "pinned": false,
-                "reacts": [],
-            };
+                let messageInfo = {
+                    "id": messageId,
+                    "message": message.value,
+                    "image": image.src,
+                    "sender": USER_ID,
+                    "sentAt": (new Date()).toISOString(),
+                    "edited": false,
+                    "editedAt": "",
+                    "pinned": false,
+                    "reacts": [],
+                };
 
-            createChannelMessageBox(messageInfo);
+                createChannelMessageBox(messageInfo);
+                message.value = '';
+                image.src = 'images/upload-image.svg';
+            })
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
-
-})
+}
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Deleting Messages                     │ */
@@ -663,99 +674,86 @@ document.getElementById('delete-message').addEventListener('click', () => {
 /* │                           Editing Messages                     │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-document.querySelectorAll('.message-info-container').forEach(messageFooter => {
-    messageFooter.children[2].addEventListener('click', () => {
-        const messageId = (messageFooter.children[2].id.split('-')).pop();
-        const message = document.getElementById('edit-message-box');
-        const img = document.getElementById('uploaded-image');
-
-        message.innerText = document.getElementById(`sender-message-${messageId}`).innerText;
-        img.src = document.getElementById(`message-image-${messageId}`).src;
-
-        document.getElementById('save-message-changes').name = messageId;
-        display('edit-message-close', 'block');
-    })
-})
-
 document.getElementById('save-message-changes').addEventListener('click', () => {
-    const messageId = this.name;
-    this.name = '';
+    const messageId = document.getElementById('save-message-changes');
+    const message = document.getElementById('edit-message-box');
+    const img = document.getElementById('uploaded-photo');
 
-    let message = document.getElementById('edit-message-box').innerText;
-    let img = document.getElementById('uploaded-image').src;
+    const oldMsg = document.getElementById(`sender-message-${messageId.name}`);
+    const oldImg = document.getElementById(`message-image-${messageId.name}`);
 
-    let oldMsg = document.getElementById(`sender-message-${messageId}`).innerText;
-    let oldImg = document.getElementById(`message-image-${messageId}`).src;
-
-    if (message !== oldMsg || img !== oldImg) {
+    if ((message.innerText !== oldMsg.innerText) || (img.src !== oldImg.src)) {
         const body = {
-            'message': message,
-            'image': img,
+            'message': message.innerText,
+            'image': img.src,
         };
-        apiFetch('PUT', `message/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, body)
+        apiFetch('PUT', `message/${LAST_VISITED_CHANNEL}/${parseInt(messageId.name)}`, TOKEN, body)
             .then(() => {
                 const editedAt = new Date().toDateString();
-                oldMsg = message;
-                oldImg = img;
-                document.getElementById(`edited-${messageId}`).style.visibility = 'visible';
-                document.getElementById(`createdAt-${messageId}`).innerText = editedAt;
+                oldMsg.innerText = message.innerText;
+                oldImg.src = img.src;
+                display(`edited-${messageId.name}`, 'inline');
+                document.getElementById(`createdAt-${messageId.name}`).innerText = editedAt;
+
+                messageId.name = '';
+                message.innerText = '';
+                img.src = 'images/upload-image.svg';
+                display('edit-message-popup', 'none');
             })
             .catch((errorMsg) => displayErrorMsg(errorMsg));
-    } else {
-        message = '';
-        img = '';
     }
 })
 
-// document.getElementById('edit-image').addEventListener('click', () => {
-//     const src = "";
-//     document.getElementById('uploaded-image').src = src;
-// })
-
 document.getElementById('edit-message-close').addEventListener('click', () => {
-    display('edit-message-close', 'none');
+    document.getElementById('edit-message-box').innerText = '';
+    display('edit-message-popup', 'none');
 })
+
+const displayEditMsgPopup = (msgId) => {
+    const message = document.getElementById(`sender-message-${msgId}`);
+    const image = document.getElementById(`message-image-${msgId}`);
+
+    document.getElementById('edit-message-box').innerText = message.innerText;
+    if (image.src === '') {
+        display('remove-image', 'none');
+    } else {
+        display('remove-image', 'inline');
+        document.getElementById('uploaded-photo').src = image.src;
+    }
+
+    display('edit-message-popup', 'flex');
+
+    document.getElementById('save-message-changes').name = msgId;
+}
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                        Reacting to Messages                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+const displayEmojis = (msgId) => {
+    const visibility = document.getElementById(`reactions-${msgId}`).style.visibility;
 
-// the emojis will show when the mouse is hovering over it, then stay visible
-// when click on the message's main box to allow users to react to a message.
-document.querySelectorAll('.message-container').forEach(messageBox => {
-    messageBox.addEventListener('mouseover', () => {
-        document.getElementById('reactions').style.visibility = 'visible';
-    })
-})
-
-document.querySelectorAll('.message-container').forEach(messageBox => {
-    messageBox.addEventListener('click', () => {
-        document.getElementById('reactions').style.visibility = 'visible';
-    })
-})
+    if (visibility === 'visible') {
+        document.getElementById(`reactions-${msgId}`).style.visibility = 'hidden';
+    } else {
+        document.getElementById(`reactions-${msgId}`).style.visibility = 'visible';
+    }
+};
 
 // react message
-document.querySelectorAll('.emoji-reactions-container').forEach(emojis => {
-    emojis.addEventListener('click', (event) => {
-        let targetEmoji = event.target;
-        // let emojiId = (targetEmoji.id).split('-');
-        // let messageId = emojiId.pop();
-        // let emojiName = emojiId.join('-');
+const reactMessage = (messageId, image) => {
 
-        let messageId = (emojis.id.split('-')).pop();
-        let emojiName = (targetEmoji.src.split('/'))[1].split('.')[0];
+    const emojiName = (image.src.split('/')).pop().split('.')[0];
 
-        apiFetch('POST', `message/react/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, {'react': emojiName})
-            .then(() => {
-                createReactedEmoji(emojiName, messageId);
-                document.getElementById(`${emojiName}-${messageId}`).className = 'reacted-emoji';
-            })
-            .catch((errorMsg) => displayErrorMsg(errorMsg));
+    apiFetch('POST', `message/react/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, {'react': emojiName})
+        .then(() => {
+            createReactedEmoji(emojiName, messageId);
+            // document.getElementById(`${emojiName}-${messageId}`).className = 'reacted-emoji';
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
 
-        document.getElementById('reactions').style.visibility = 'hidden';
-    });
-})
+    document.getElementById('reactions').style.visibility = 'hidden';
+};
 
 // un-react message
 document.querySelectorAll('.reacted-emoji').forEach(reactedEmoji => {
@@ -857,7 +855,6 @@ document.getElementById('display-user-profile-popup-close').addEventListener('cl
 document.querySelectorAll('.user-message-profile').forEach(msgProfile => {
     msgProfile.addEventListener('click', () => {
         const userId = msgProfile.id.split('-').pop();
-        console.log(USER_ID);
         displayMemberProfile(USER_ID);
     })
 })
@@ -907,7 +904,6 @@ document.getElementById('edit-user-information').addEventListener('click', () =>
             name.value = userInfo['name'];
             bio.value = userInfo['bio'];
             email.value = userInfo['email'];
-            console.log(image);
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 
@@ -1059,12 +1055,6 @@ const editUserProfile = (userInfo) => {
 /* │                      Fragment Based URL Routing                │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-//
-// // Add event listeners to every channel
-// document.getElementById('private-channelLst').addEventListener('click', (e) => {
-//     console.log(e.target);
-// })
-//
 
 // a function to refresh channel screen --> do this before the user logging out
 // 1. map the userId to
@@ -1072,7 +1062,6 @@ const editUserProfile = (userInfo) => {
 // console.log(node);
 // console.log(document.getElementById('create-channel-popup'));
 
-// update channel name when the text box is blured
 
 
 

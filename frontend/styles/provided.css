@@ -368,6 +368,7 @@ html, body {
     max-width: fit-content;
 }
 .remove-image {
+    display: inline;
     position: absolute;
     top: 0;
     right: 0;
@@ -386,7 +387,7 @@ html, body {
     height: fit-content;
     min-height: 50px;
     background-color: #fafafa;
-    padding: 5px;
+    padding: 10px;
     box-sizing: border-box;
     overflow: hidden;
     box-shadow: #32325D3F 0 2px 5px -1px, #0000004C 0 1px 3px -1px;
@@ -795,6 +796,7 @@ button.channel {
     box-sizing: border-box;
     visibility: hidden;
 }
+
 .emoji-container, .reacted-emoji {
     display: inline-flex;
     justify-content: flex-start;
@@ -811,6 +813,7 @@ button.channel {
     gap: 5px;
     padding: 15px;
     box-sizing: border-box;
+    margin-bottom: 5px;
     border-radius: 20px;
     background-color: #FFEDD4;
 }
@@ -841,8 +844,7 @@ button.channel {
     border-bottom: 1px solid #00586E;
     padding-bottom: 5px;
     box-sizing: border-box;
-
-    cursor: pointer;
+    cursor: default;
 }
 .user-message {
     display: flex;
