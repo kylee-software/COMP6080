@@ -55,6 +55,7 @@
     </div>
   </div>
   <div id="main-page" class="main-container">
+
     <div class="popup-overlay" id="create-channel-popup">
       <div class="popup">
         <div class="close-container">
@@ -249,6 +250,9 @@
       </div>
     </div>
     <div class="main">
+      <div style="display: none" class="channel-image-container">
+        <img src="images/waiting.PNG" class="waiting-image">
+      </div>
       <div class="channel-header">
         <div id="channel-name-container" class="channel-name-container">
           <input class="channel-name" id="channel-name-label">
@@ -273,7 +277,7 @@
           </div>
         </div>
       </div>
-      <div id="channel-messages" class="channel-messages-container">
+      <div class="channel-messages-container" id="channel-messages">
         <div id="channel-message-box" class="member-message-container">
           <div id="reactions" class="emoji-reactions-container">
                 <img src="images/red-heart.svg" class="emoji-style">
@@ -297,16 +301,16 @@
                 <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
               </div>
               <div class="user-main-message-container">
-                <span id="sender-name" class="user-message-name">Kylee</span>
+                <span id="sender-name" class="user-message-name"></span>
                 <div class="user-message">
-                  <span id="sender-message">Channel Name</span>
-                  <img id="message-image" src="images/red-heart.svg" class="user-channel-photo">
+                  <span id="sender-message"></span>
+                  <img id="message-image" class="user-channel-photo">
                 </div>
                 <div class="user-reactions" id="message-reactions">
-                  <div class="reacted-emoji">
-                    <img src="images/face-with-rolling-eyes.svg" class="emoji-style">
-                    <span>2</span>
-                  </div>
+<!--                  <div class="reacted-emoji">-->
+<!--                    <img src="images/face-with-rolling-eyes.svg" class="emoji-style">-->
+<!--                    <span>2</span>-->
+<!--                  </div>-->
                 </div>
               </div>
             </div>
