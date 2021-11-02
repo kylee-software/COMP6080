@@ -601,16 +601,81 @@ span.a:hover {
 
 .sidebar {
     grid-area: sidebar;
-    padding: 20px 10px;
+    padding: 20px 15px;
     overflow: auto;
-    display: flex;
-    flex-direction: column;
+    display: block;
     width: 100%;
     background: #ecf0f3;
-    gap: 10px;
+    height: 100%;
     border-radius: 20px;
     box-shadow: 10px 5px 10px #BABECC;
     box-sizing: border-box;
+}
+.channels-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.channel-pinned-messages {
+    /*display: flex;*/
+    display: none;
+    flex-direction: column;
+    width: 100%;
+}
+.channel-pinned-messages-title {
+    display: inline-flex;
+    justify-content: center;
+    width: 100%;
+    border-bottom: 1px solid #00586E;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px;
+    box-sizing: border-box;
+    align-items: center;
+}
+.pinned-messages-container {
+    display: flex;
+    padding: 10px;
+    box-sizing: border-box;
+    background: #FFF;
+    margin: 10px 0;
+    width: 100%;
+    border-radius: 10px;
+    overflow: auto;
+}
+.pinned-message-container {
+    width: 100%;
+    /*display: flex;*/
+    display: none;
+    flex-direction: column;
+    padding: 5px;
+    border-radius: 10px;
+    background: #FFE5DF;
+    box-sizing: border-box;
+}
+.pinned-message-container:hover {
+    background: #FFD5CA;
+    cursor: pointer;
+}
+.pinned-message-info {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    border-bottom: 1px solid #00586E;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px;
+    box-sizing: border-box;
+}
+.pinned-message-text {
+    font-size: 10px;
+    padding: 5px;
+    height: fit-content;
+    max-height: 50px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 .sidebar-items {
     display: inline-flex;
@@ -804,6 +869,14 @@ button.channel {
     width: fit-content;
     height: fit-content;
 }
+.reacted-emoji {
+    border-radius: 5px;
+    cursor: default;
+}
+.reacted-emoji:hover {
+    background: #FFF;
+    box-shadow: #32325D3F 0 6px 12px -2px, #0000004C 0 3px 7px -3px;
+}
 .message-container {
     display: flex;
     flex-direction: column;
@@ -873,6 +946,7 @@ button.channel {
     height: fit-content;
     gap: 5px;
     border-radius: 10px;
+    padding: 5px;
     background-color: #FFE6CC;
     box-sizing: border-box;
 }
@@ -887,12 +961,16 @@ button.channel {
 }
 .icon, .pinned {
     cursor: pointer;
+    padding: 3px;
+    border-radius: 10px;
+}
+.icon:hover, .pinned:hover {
+    background-color: #FFB19D;
 }
 .emoji-style {
     object-fit: contain;
     height: 100%;
     width: 30px;
-    cursor: pointer;
 }
 .user-message-profile {
     display: flex;

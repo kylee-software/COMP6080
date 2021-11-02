@@ -7,6 +7,7 @@ let LAST_VISITED_CHANNEL = null;
 // const storeToken = (userId, token) => localStorage.setItem(userId, token);
 let userMessageIdCounter = new Map();
 let userLastVisitedChannel = new Map();
+let channelPinnedMessages = new Map();
 
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -287,6 +288,8 @@ const createChannelLabel = (type, channelName, channelId) => {
 };
 
 document.getElementById('create-channel-close').addEventListener('click', () => {
+    document.getElementById('create-channel-name').value = null;
+    document.getElementById('create-channel-description').innerText = null;
     display('create-channel-popup', 'none');
 })
 
@@ -436,7 +439,7 @@ const createMemberBox = (userId, profilePic, name) => {
     memberLst.appendChild(newMember);
     display(userId, 'flex');
 
-}
+};
 
 const displayNonMemberSrc = (channelName) => {
     document.getElementById('channel-name-label').readOnly = true;
@@ -445,11 +448,12 @@ const displayNonMemberSrc = (channelName) => {
     display('channel-members', 'none');
     display('leave-channel', 'none');
     display('join-channel', 'inline-flex');
+    display('channel-pinned-messages-icon', 'none');
     document.getElementById('channel-name-container').style.pointerEvents = 'none';
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'not-allowed';
     sentMsgBtn.removeEventListener('click', sentMessage);
-}
+};
 
 const displayMemberSrc = (channelName) => {
     document.getElementById('channel-name-label').readOnly = false;
@@ -458,13 +462,17 @@ const displayMemberSrc = (channelName) => {
     display('channel-members', 'inline-flex');
     display('leave-channel', 'inline-flex');
     display('join-channel', 'none');
+    display('channel-pinned-messages-icon', 'inline-flex');
     document.getElementById('channel-name-container').style.pointerEvents = 'auto';
     const channelNameInput = document.getElementById('channel-name-label');
     setEndCursor(channelNameInput);
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'pointer';
     sentMsgBtn.addEventListener('click', sentMessage);
-}
+    console.log(channelPinnedMessages.get(LAST_VISITED_CHANNEL));
+    console.log(userMessageIdCounter.get(LAST_VISITED_CHANNEL));
+    listPinnedMessages();
+};
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                     Milestone 3                                           │ */
@@ -595,15 +603,17 @@ const createChannelMessageBox = (messageInfo) => {
 
     // display reacted emojis
     for (let i = 0; i < reacts.length; i++) {
-        createReactedEmoji(reacts[i]['react'], messageId);
+        const emojiName = reacts[i]['react'];
+        const userId = reacts[i]['user'];
+        createReactedEmoji(emojiName, messageId, userId);
     }
 
     display(newMessageBox.id, 'flex');
     messageBody.addEventListener('click', () => displayEmojis(messageId));
     editMessageIcon.addEventListener('click', () => displayEditMsgPopup(messageId));
-    reactionEmojis.addEventListener('click', (event) => {
-        reactMessage(messageId, event.target);
-    })
+    reactionEmojis.addEventListener('click', (event) => reactMessage(messageId, event.target), USER_ID);
+    reactedEmojis.addEventListener('click', (event) => unreactMessage(messageId, event.target));
+    pinnedIcon.addEventListener('click', () => pinMessage(pinnedIcon));
 };
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -741,13 +751,13 @@ const displayEmojis = (msgId) => {
 };
 
 // react message
-const reactMessage = (messageId, image) => {
+const reactMessage = (messageId, image, userId) => {
 
     const emojiName = (image.src.split('/')).pop().split('.')[0];
 
     apiFetch('POST', `message/react/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, {'react': emojiName})
         .then(() => {
-            createReactedEmoji(emojiName, messageId);
+            createReactedEmoji(emojiName, messageId, userId);
             // document.getElementById(`${emojiName}-${messageId}`).className = 'reacted-emoji';
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
@@ -756,29 +766,31 @@ const reactMessage = (messageId, image) => {
 };
 
 // un-react message
-document.querySelectorAll('.reacted-emoji').forEach(reactedEmoji => {
-    reactedEmoji.addEventListener('click', () => {
-        const emojiId = reactedEmoji.id;
-        let emojiName = emojiId.split('-');
-        let messageId = emojiName.pop();
-        emojiName = emojiName.join('-');
-        const reactions = document.getElementById(`message-reactions-${messageId}`);
+const unreactMessage = (messageId, image) => {
+    const emojiName = (image.src.split('/')).pop().split('.')[0];
+    const emojiId = `${emojiName}-${messageId}`;
 
+    const reactedEmoji = document.getElementById(emojiId);
+    const countLabel = reactedEmoji.children[1];
+
+    // check the emoji that is reacted by the user
+    if (reactedEmoji.matches(':hover')) {
         apiFetch('POST', `message/unreact/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, {'react': emojiName})
-            .then(() => {
-                let count = parseInt(reactedEmoji.children[1].innerText);
-                if (count <= 1) {
-                    reactions.removeChild(reactions);
+            .then (() => {
+                let count = parseInt(countLabel.innerText);
+                if (count > 1) {
+                    countLabel.innerText = (count - 1).toString();
+                    reactedEmoji.removeEventListener('hover', () => styleReactedEmoji(reactedEmoji));
                 } else {
-                    reactedEmoji.children[1].innerText = (count - 1).toString();
-                    reactedEmoji.className = 'emoji-container';
+                    const reactedEmojis = document.getElementById(`message-reactions-${messageId.toString()}`);
+                    reactedEmojis.removeChild(reactedEmoji);
                 }
             })
             .catch((errorMsg) => displayErrorMsg(errorMsg));
-    })
-})
+    }
+}
 
-const createReactedEmoji = (emojiName, messageId) => {
+const createReactedEmoji = (emojiName, messageId, userId) => {
     const reactedEmojis = document.getElementById(`message-reactions-${messageId}`);
     const emojiId = `${emojiName}-${messageId}`;
     let newEmoji = document.getElementById(emojiId);
@@ -801,32 +813,101 @@ const createReactedEmoji = (emojiName, messageId) => {
         let count = newEmoji.children[1].innerText;
         newEmoji.children[1].innerText = (parseInt(count) + 1).toString();
     }
+
+    if (userId === USER_ID) {
+        newEmoji.addEventListener('hover', () => styleReactedEmoji(newEmoji));
+    }
+};
+
+const styleReactedEmoji = (emoji) => {
+    emoji.style.background = '#FFF';
+    emoji.style.boxShadow = '#32325D3F 0 6px 12px -2px, #0000004C 0 3px 7px -3px';
+    emoji.style.cursor = 'pointer';
 }
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Pinning Messages                      │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-document.querySelectorAll('.message-info-container').forEach(messageFooter => {
-    const target = messageFooter.children[3];
-    target.addEventListener('click', () => {
-        const messageId = target.id.split('-').pop();
-
-        if (target.src === 'images/unpin-message.svg') {
-            apiFetch('POST', `message/pin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null)
-                .then(() => {
-                    document.getElementById(`pinned-${messageId}`).src = 'images/pin-message.svg';
-                })
-                .catch((errorMsg) => displayErrorMsg(errorMsg));
-        } else {
-            apiFetch('POST', `message/unpin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null)
-                .then(() => {
-                    document.getElementById(`pinned-${messageId}`).src = 'images/unpin-message.svg';
-                })
-                .catch((errorMsg) => displayErrorMsg(errorMsg));
-        }
-    })
+document.getElementById('channel-pinned-messages-icon').addEventListener('click', () => {
+    display('channels-list', 'none');
+    display('channel-pinned-messages', 'flex');
 })
+
+// pin and unpin message
+const pinMessage = (element) => {
+    const messageId = element.id.split('-').pop();
+    const pinned = (element.src.split('/').pop().split('.')[0] === 'pin-message');
+    if (pinned) {
+        apiFetch('POST', `message/unpin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null).then(() => {
+            document.getElementById(`pinned-${messageId}`).src = 'images/unpin-message.svg';
+            const pinnedMessages = document.getElementById('pinned-messages');
+            const pinnedMessage = document.getElementById(`pinned-message-${messageId}`);
+            // remove from sidebar
+            pinnedMessages.removeChild(pinnedMessage);
+            // remove from map();
+            channelPinnedMessages.get(LAST_VISITED_CHANNEL).delete(parseInt(messageId));
+        }).catch((errorMsg) => displayErrorMsg(errorMsg));
+    } else {
+        apiFetch('POST', `message/pin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null).then(() => {
+            const senderName = document.getElementById(`sender-name-${messageId}`).innerText;
+            const createdAt = document.getElementById(`createdAt-${messageId}`).innerText;
+            const message = document.getElementById(`sender-message-${messageId}`).innerText;
+            const messageInfo = {
+                'id': parseInt(messageId),
+                'senderName': senderName,
+                'createdAt': createdAt,
+                'message': message,
+            };
+
+            createPinnedMessage(messageInfo);
+
+            let pinnedMsgMap = channelPinnedMessages.get(LAST_VISITED_CHANNEL);
+            if (pinnedMsgMap !== undefined) {
+                channelPinnedMessages.get(LAST_VISITED_CHANNEL).set(parseInt(messageId), messageInfo);
+            } else{
+                const pinnedMessages = new Map();
+                pinnedMessages.set(parseInt(messageId), messageInfo);
+                channelPinnedMessages.set(LAST_VISITED_CHANNEL, pinnedMessages);
+            }
+
+            document.getElementById(`pinned-${messageId}`).src = 'images/pin-message.svg';
+        }).catch((errorMsg) => displayErrorMsg(errorMsg));
+    }
+}
+
+document.getElementById('channel-pinned-messages-close').addEventListener('click', () => {
+    display('channels-list', 'flex');
+    display('channel-pinned-messages', 'none');
+})
+
+const createPinnedMessage = (messageInfo) => {
+    const messageId = messageInfo['id'];
+    const senderName = messageInfo['senderName'];
+    const createAt = messageInfo['createdAt'];
+    const message = messageInfo['message'];
+    const pinnedMessages = document.getElementById('pinned-messages');
+    const newPinnedMessage = document.getElementById('pinned-message').cloneNode(true);
+    newPinnedMessage.id = `${newPinnedMessage.id}-${messageId.toString()}`;
+
+    // set sender name
+    newPinnedMessage.children[0].children[0].innerText = senderName;
+    // set the time when the message was created
+    newPinnedMessage.children[0].children[1].innerText = createAt;
+    // set the message
+    newPinnedMessage.children[1].innerText = message;
+
+    pinnedMessages.appendChild(newPinnedMessage);
+    display(newPinnedMessage.id, 'flex');
+}
+const listPinnedMessages = () => {
+    const pinnedMessages = channelPinnedMessages.get(LAST_VISITED_CHANNEL);
+    if (pinnedMessages !== undefined) {
+        pinnedMessages.forEach((value, key) => {
+            createPinnedMessage(value);
+        })
+    }
+}
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                       Milestone 4                                         │ */
@@ -1009,7 +1090,7 @@ const displayPassword = (element, type) => {
 }
 const editUserProfile = (userInfo) => {
     return apiFetch('PUT', 'user', TOKEN, userInfo);
-}
+};
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                     Milestone 5                                           │ */
@@ -1061,8 +1142,3 @@ const editUserProfile = (userInfo) => {
 // const node = document.getElementById('create-channel-popup').cloneNode(true);
 // console.log(node);
 // console.log(document.getElementById('create-channel-popup'));
-
-
-
-
-

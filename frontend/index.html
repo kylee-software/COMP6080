@@ -227,26 +227,43 @@
       </div>
     </div>
     <div class="sidebar">
-      <div class="sidebar-items">
-        <button class="channel-label" id="private-channel-label">Private Channels</button>
-        <button class="icon" id="add-private-channel">
-          <img src="images/plus-lg.svg" alt="Add Channel Button">
-        </button>
+      <div id="channels-list" class="channels-list">
+        <div class="sidebar-items">
+          <button class="channel-label" id="private-channel-label">Private Channels</button>
+          <button class="icon" id="add-private-channel">
+            <img src="images/plus-lg.svg" alt="Add Channel Button">
+          </button>
+        </div>
+        <div class="channels-container" id="private-channelLst">
+          <button class="channel" id="channel-item">Private Channel</button>
+        </div>
+        <div class="sidebar-items">
+          <button class="channel-label" id="joined-public-channel-label">Joined Public Channels</button>
+        </div>
+        <div class="channels-container" id="joined-public-channelLst"></div>
+        <div class="sidebar-items">
+          <button class="channel-label" id="public-channel-label">Public Channels</button>
+          <button class="icon" id="add-public-channel">
+            <img src="images/plus-lg.svg" alt="Add Channel Button">
+          </button>
+        </div>
+        <div class="channels-container" id="public-channelLst">
+        </div>
       </div>
-      <div class="channels-container" id="private-channelLst">
-        <button class="channel" id="channel-item">Private Channel</button>
-      </div>
-      <div class="sidebar-items">
-        <button class="channel-label" id="joined-public-channel-label">Joined Public Channels</button>
-      </div>
-      <div class="channels-container" id="joined-public-channelLst"></div>
-      <div class="sidebar-items">
-        <button class="channel-label" id="public-channel-label">Public Channels</button>
-        <button class="icon" id="add-public-channel">
-          <img src="images/plus-lg.svg" alt="Add Channel Button">
-        </button>
-      </div>
-      <div class="channels-container" id="public-channelLst">
+      <div id="channel-pinned-messages" class="channel-pinned-messages">
+        <div class="close-container">
+          <img id="channel-pinned-messages-close" src="images/close.svg" class="popup-close">
+        </div>
+        <div class="channel-pinned-messages-title">Pinned Messages</div>
+        <div id="pinned-messages" class="pinned-messages-container">
+          <div id="pinned-message" class="pinned-message-container">
+            <div class="pinned-message-info">
+              <span>sender name</span>
+              <span>time</span>
+            </div>
+            <span class="pinned-message-text">message</span>
+          </div>
+        </div>
       </div>
     </div>
     <div class="main">
@@ -266,6 +283,10 @@
           <div id="channel-members" class="channel-nav-item">
             <img src="images/channel-members.svg" alt="channel-members">
             <span>Members</span>
+          </div>
+          <div id="channel-pinned-messages-icon" class="channel-nav-item">
+            <img src="images/pin-message.svg" alt="pinned messages">
+            <span>Pinned Messages</span>
           </div>
           <div id="leave-channel" class="channel-nav-item">
             <img src="images/leave-channel.svg" alt="leave channel">
