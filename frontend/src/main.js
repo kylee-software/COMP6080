@@ -1,14 +1,99 @@
-// A helper you may want to use when uploading new images to the server.
+import { fileToDataUrl } from './helpers.js';
 
 let TOKEN = null;
 let USER_ID = null;
 let LAST_VISITED_CHANNEL = null;
-// const storeToken = (token) => TOKEN = token;
-// const storeToken = (userId, token) => localStorage.setItem(userId, token);
-let userMessageIdCounter = new Map();
-let userLastVisitedChannel = new Map();
-let channelPinnedMessages = new Map();
 
+// let userMessageIdCounter = new Map();
+// let userLastVisitedChannel = new Map();
+// let channelPinnedMessages = new Map();
+
+/* ┌────────────────────────────────────────────────────────────────┐ */
+/* │                     Local Storage Related                      │ */
+/* └────────────────────────────────────────────────────────────────┘ */
+
+// convert dictionary object into JSON object and vice versa so that it can be stored in the localStorage;
+const dictToJson = (dict) => { return JSON.stringify(dict); };
+const jsonToDict = (json) => { return JSON.parse(json); };
+
+const getMessageId = (channelId) => {
+    const channelMessageCounter = localStorage.getItem('channel-message-counter');
+    if (channelMessageCounter === undefined) {
+        const counterDict = {channelId: 0};
+        localStorage.setItem('channel-message-counter', dictToJson(counterDict));
+    } else {
+        const channelCounterList = jsonToDict(channelMessageCounter);
+
+        let count = channelCounterList[channelId];
+        if (count !== undefined) {
+            count += 1;
+        } else {
+            count = 0;
+        }
+
+        channelCounterList[channelId] = count;
+
+        return apiFetch('GET', `message/${channelId}?start=${count}`, TOKEN, null)
+            .then((messages) => {
+                localStorage.setItem('channel-message-counter', dictToJson(channelCounterList));
+                return messages['messages'][0]['id'];
+            })
+            .catch((errorMsg) => displayErrorMsg(errorMsg));
+    }
+};
+const setLastVisitedChannel = (userId) => {
+    const lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
+    if (lastVisitedChannelLst === undefined) {
+        const lvcDict = {userId: LAST_VISITED_CHANNEL};
+        localStorage.setItem('user-last-visited-channel', dictToJson(lvcDict));
+    } else {
+        const lst = jsonToDict(lastVisitedChannelLst);
+        lst[userId] = LAST_VISITED_CHANNEL;
+        localStorage.setItem('user-last-visited-channel', dictToJson(lst));
+    }
+};
+const getLastVisitedChannel = (userId) => {
+    let lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
+    lastVisitedChannelLst = jsonToDict(lastVisitedChannelLst);
+    return lastVisitedChannelLst[userId];
+}
+const addPinnedMessage = (channelId, messageId, messageInfo) => {
+    let channelLst = localStorage.getItem('channel-pinned-messages');
+    if (channelLst === undefined) {
+        const newPinnedMessage = {
+            channelId: { messageId: messageInfo }
+        };
+        localStorage.setItem('channel-pinned-messages', dictToJson(newPinnedMessage));
+    } else {
+        channelLst = jsonToDict(channelLst);
+        const channelPinnedMessages = channelLst[channelId];
+        if (channelPinnedMessages === undefined) {
+            channelLst[channelId] = { messageId: messageInfo };
+        } else {
+            channelLst[channelId][messageId] = messageInfo;
+        }
+        localStorage.setItem('channel-pinned-messages', dictToJson(channelLst));
+    }
+};
+const removePinnedMessage = (channelId, messageId) => {
+    let channelLst = localStorage.getItem('channel-pinned-messages');
+    channelLst = jsonToDict(channelLst);
+    delete channelLst[channelId][messageId];
+    localStorage.setItem('channel-pinned-messages', dictToJson(channelLst));
+};
+const updatePinnedMessage = (channelId, messageId, messageInfo) => {
+    let channelLst = localStorage.getItem('channel-pinned-messages');
+    channelLst = jsonToDict(channelLst);
+    channelLst[channelId][messageId] = messageInfo;
+    localStorage.setItem('channel-pinned-messages', dictToJson(channelLst));
+};
+
+// to clear the localStorage press Ctrl + Alt + r (or R) for Window or ⌘ + Alt + r (or R) for Mac
+window.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.altKey && (event.key === 'r' || event.key === 'R')) {
+        localStorage.clear();
+    }
+});
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                    Helper Functions                                       │ */
@@ -66,22 +151,6 @@ const setEndCursor = (element) => {
     })
 }
 
-const getMessageId = (channelId) => {
-    let count = userMessageIdCounter.get(channelId);
-    if (count !== undefined) {
-        count += 1;
-    } else {
-        count = 0;
-    }
-    userMessageIdCounter.set(channelId, count);
-
-    return apiFetch('GET', `message/${channelId}?start=${count}`, TOKEN, null)
-        .then((messages) => {
-            return messages['messages'][0]['id'];
-        })
-        .catch((errorMsg) => displayErrorMsg(errorMsg));
-}
-
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                      Milestone 1                                          │ */
 /* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
@@ -121,7 +190,6 @@ document.getElementById('login-submit').addEventListener('click', () => {
             displayErrorMsg(errorMsg);
         });
 })
-
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                             Logout                             │ */
