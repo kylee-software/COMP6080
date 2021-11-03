@@ -5,7 +5,6 @@ let USER_ID = null;
 let LAST_VISITED_CHANNEL = null;
 
 // let userMessageIdCounter = new Map();
-// let userLastVisitedChannel = new Map();
 // let channelPinnedMessages = new Map();
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -16,34 +15,9 @@ let LAST_VISITED_CHANNEL = null;
 const dictToJson = (dict) => { return JSON.stringify(dict); };
 const jsonToDict = (json) => { return JSON.parse(json); };
 
-const getMessageId = (channelId) => {
-    const channelMessageCounter = localStorage.getItem('channel-message-counter');
-    if (channelMessageCounter === undefined) {
-        const counterDict = {channelId: 0};
-        localStorage.setItem('channel-message-counter', dictToJson(counterDict));
-    } else {
-        const channelCounterList = jsonToDict(channelMessageCounter);
-
-        let count = channelCounterList[channelId];
-        if (count !== undefined) {
-            count += 1;
-        } else {
-            count = 0;
-        }
-
-        channelCounterList[channelId] = count;
-
-        return apiFetch('GET', `message/${channelId}?start=${count}`, TOKEN, null)
-            .then((messages) => {
-                localStorage.setItem('channel-message-counter', dictToJson(channelCounterList));
-                return messages['messages'][0]['id'];
-            })
-            .catch((errorMsg) => displayErrorMsg(errorMsg));
-    }
-};
 const setLastVisitedChannel = (userId) => {
     const lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
-    if (lastVisitedChannelLst === undefined) {
+    if (lastVisitedChannelLst === null) {
         const lvcDict = {userId: LAST_VISITED_CHANNEL};
         localStorage.setItem('user-last-visited-channel', dictToJson(lvcDict));
     } else {
@@ -56,24 +30,44 @@ const getLastVisitedChannel = (userId) => {
     let lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
     lastVisitedChannelLst = jsonToDict(lastVisitedChannelLst);
     return lastVisitedChannelLst[userId];
-}
+};
+const getChanelPinnedMsgs = (channelId) => {
+    let channelLst = localStorage.getItem('channel-pinned-messages');
+    if (channelLst === null) {
+        return null;
+    } else {
+        channelLst = jsonToDict(channelLst);
+        const channelMsgs = channelLst[channelId];
+        if (channelMsgs === null) {
+            return null;
+        } else {
+            return channelMsgs;
+        }
+    }
+};
 const addPinnedMessage = (channelId, messageId, messageInfo) => {
     let channelLst = localStorage.getItem('channel-pinned-messages');
-    if (channelLst === undefined) {
-        const newPinnedMessage = {
-            channelId: { messageId: messageInfo }
-        };
+    if (channelLst === null) {
+        let message = {};
+        message[messageId] = messageInfo;
+        let newPinnedMessage = {};
+        newPinnedMessage[channelId] = message;
         localStorage.setItem('channel-pinned-messages', dictToJson(newPinnedMessage));
     } else {
         channelLst = jsonToDict(channelLst);
         const channelPinnedMessages = channelLst[channelId];
         if (channelPinnedMessages === undefined) {
-            channelLst[channelId] = { messageId: messageInfo };
+            let channelInfo = {};
+            channelInfo[messageId] = messageInfo;
+            channelLst[channelId] = channelInfo;
         } else {
             channelLst[channelId][messageId] = messageInfo;
         }
         localStorage.setItem('channel-pinned-messages', dictToJson(channelLst));
+        console.log(localStorage.getItem('channel-pinned-messages'));
     }
+
+    console.log(jsonToDict(localStorage.getItem('channel-pinned-messages')));
 };
 const removePinnedMessage = (channelId, messageId) => {
     let channelLst = localStorage.getItem('channel-pinned-messages');
@@ -92,6 +86,7 @@ const updatePinnedMessage = (channelId, messageId, messageInfo) => {
 window.addEventListener('keydown', (event) => {
     if ((event.ctrlKey || event.metaKey) && event.altKey && (event.key === 'r' || event.key === 'R')) {
         localStorage.clear();
+        console.log('Local Storage got reset!');
     }
 });
 
@@ -125,6 +120,14 @@ const apiFetch = (method, path, token, body) => {
             .catch((error) => console.log(error));
     });
 }
+
+const getNewMessageId = (channelId) => {
+    return apiFetch('GET', `message/${channelId}?start=0`, TOKEN, null)
+        .then((messages) => {
+            return messages['messages'][0]['id'];
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
+};
 
 const display = (elementId, type) => document.getElementById(elementId).style.display = type;
 
@@ -454,16 +457,16 @@ document.getElementById('leave-channel').addEventListener('click', () => {
     apiFetch('POST', `channel/${parseInt(LAST_VISITED_CHANNEL)}/leave`, TOKEN, null)
         .then(() => {
             const privateChannelLst = document.getElementById('private-channelLst');
-            const joinedChannelLst = document.getElementById('joined-channel-channelLst');
+            const joinedChannelLst = document.getElementById('joined-public-channelLst');
             const publicChannelLst = document.getElementById('public-channelLst');
             const targetChannel = document.getElementById(LAST_VISITED_CHANNEL);
+            console.log(targetChannel);
             if (privateChannelLst.contains(targetChannel)) {
                 privateChannelLst.removeChild(targetChannel);
                 LAST_VISITED_CHANNEL = null;
             } else {
                 publicChannelLst.appendChild(targetChannel);
-                joinedChannelLst.removeChild(targetChannel);
-                displayNonMemberSrc(targetChannel.value);
+                displayNonMemberSrc(targetChannel.innerText);
             }
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
@@ -477,8 +480,7 @@ document.getElementById('join-channel').addEventListener('click', () => {
             const targetChannel = document.getElementById(LAST_VISITED_CHANNEL);
 
             joinedChannelLst.appendChild(targetChannel);
-            publicChannelLst.removeChild(targetChannel);
-            displayMemberSrc(targetChannel.value);
+            displayMemberSrc(targetChannel.innerText);
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 })
@@ -510,20 +512,32 @@ const createMemberBox = (userId, profilePic, name) => {
 };
 
 const displayNonMemberSrc = (channelName) => {
+    // prevent non-members to change the name of the channel
     document.getElementById('channel-name-label').readOnly = true;
     document.getElementById('channel-name-label').value = channelName;
+    document.getElementById('channel-name-container').style.pointerEvents = 'none';
+    // display only the join channel nav icon and the name of the channel
     display('channel-about', 'none');
     display('channel-members', 'none');
     display('leave-channel', 'none');
     display('join-channel', 'inline-flex');
     display('channel-pinned-messages-icon', 'none');
-    document.getElementById('channel-name-container').style.pointerEvents = 'none';
+
+    // prevent non-member to send message to the channel;
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'not-allowed';
     sentMsgBtn.removeEventListener('click', sentMessage);
+
+    // hide pinned messages from the sidebar
+    display('channel-pinned-messages', 'none');
+    display('channels-list', 'flex');
+    // clear all channel messages from the previous channel that the user
+    // was in and render messages for the current channel
+    document.getElementById('channel-messages').innerHTML = '';
 };
 
 const displayMemberSrc = (channelName) => {
+    // display all nav items of the header except the join channel button
     document.getElementById('channel-name-label').readOnly = false;
     document.getElementById('channel-name-label').value = channelName;
     display('channel-about', 'inline-flex');
@@ -531,15 +545,27 @@ const displayMemberSrc = (channelName) => {
     display('leave-channel', 'inline-flex');
     display('join-channel', 'none');
     display('channel-pinned-messages-icon', 'inline-flex');
+
+    // allows the member of the channel change the name of the channel
     document.getElementById('channel-name-container').style.pointerEvents = 'auto';
     const channelNameInput = document.getElementById('channel-name-label');
+    // ser the cursor to the end of the text
     setEndCursor(channelNameInput);
+    // add event listener to the send message button
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'pointer';
     sentMsgBtn.addEventListener('click', sentMessage);
-    console.log(channelPinnedMessages.get(LAST_VISITED_CHANNEL));
-    console.log(userMessageIdCounter.get(LAST_VISITED_CHANNEL));
+
+    // clear the pinned messages from the previous channel that was clicked and
+    // render the list of pinned messages for the current channel
+    display('channel-pinned-messages', 'none');
+    display('channels-list', 'flex');
+    document.getElementById('pinned-messages').innerHTML = '';
     listPinnedMessages();
+
+    // clear all channel messages from the previous channel that the user
+    // was in and render messages for the current channel
+    document.getElementById('channel-messages').innerHTML = '';
 };
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -620,6 +646,7 @@ const createChannelMessageBox = (messageInfo) => {
     reactedEmojis.id = `${reactedEmojis.id}-${messageId.toString()}`;
 
     const messageBoxFooter = newMessageBox.children[2];
+    messageBoxFooter.id = `${messageBoxFooter.id}-${messageId.toString()}`;
 
     // edited label
     const editedLabel = messageBoxFooter.children[0];
@@ -675,7 +702,6 @@ const createChannelMessageBox = (messageInfo) => {
         const userId = reacts[i]['user'];
         createReactedEmoji(emojiName, messageId, userId);
     }
-
     display(newMessageBox.id, 'flex');
     messageBody.addEventListener('click', () => displayEmojis(messageId));
     editMessageIcon.addEventListener('click', () => displayEditMsgPopup(messageId));
@@ -710,7 +736,7 @@ const sentMessage = () => {
 
     apiFetch('POST', `message/${LAST_VISITED_CHANNEL}`, TOKEN, body)
         .then(() => {
-            getMessageId(LAST_VISITED_CHANNEL).then((messageId) => {
+            getNewMessageId(LAST_VISITED_CHANNEL).then((messageId) => {
 
                 let messageInfo = {
                     "id": messageId,
@@ -907,17 +933,18 @@ const pinMessage = (element) => {
     const messageId = element.id.split('-').pop();
     const pinned = (element.src.split('/').pop().split('.')[0] === 'pin-message');
     if (pinned) {
-        apiFetch('POST', `message/unpin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null).then(() => {
-            document.getElementById(`pinned-${messageId}`).src = 'images/unpin-message.svg';
+        apiFetch('POST', `message/unpin/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, null).then(() => {
             const pinnedMessages = document.getElementById('pinned-messages');
             const pinnedMessage = document.getElementById(`pinned-message-${messageId}`);
             // remove from sidebar
             pinnedMessages.removeChild(pinnedMessage);
-            // remove from map();
-            channelPinnedMessages.get(LAST_VISITED_CHANNEL).delete(parseInt(messageId));
+            // remove from localStorage();
+            removePinnedMessage(LAST_VISITED_CHANNEL, parseInt(messageId));
+            // change pin image to unpin
+            element.src = 'images/unpin-message.svg';
         }).catch((errorMsg) => displayErrorMsg(errorMsg));
     } else {
-        apiFetch('POST', `message/pin/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null).then(() => {
+        apiFetch('POST', `message/pin/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, null).then(() => {
             const senderName = document.getElementById(`sender-name-${messageId}`).innerText;
             const createdAt = document.getElementById(`createdAt-${messageId}`).innerText;
             const message = document.getElementById(`sender-message-${messageId}`).innerText;
@@ -928,18 +955,12 @@ const pinMessage = (element) => {
                 'message': message,
             };
 
+            // create a button like label in the sidebar
             createPinnedMessage(messageInfo);
-
-            let pinnedMsgMap = channelPinnedMessages.get(LAST_VISITED_CHANNEL);
-            if (pinnedMsgMap !== undefined) {
-                channelPinnedMessages.get(LAST_VISITED_CHANNEL).set(parseInt(messageId), messageInfo);
-            } else{
-                const pinnedMessages = new Map();
-                pinnedMessages.set(parseInt(messageId), messageInfo);
-                channelPinnedMessages.set(LAST_VISITED_CHANNEL, pinnedMessages);
-            }
-
-            document.getElementById(`pinned-${messageId}`).src = 'images/pin-message.svg';
+            // add to localStorage
+            addPinnedMessage(LAST_VISITED_CHANNEL, parseInt(messageId), messageInfo);
+            // change unpin image to pinned
+            element.src = 'images/pin-message.svg';
         }).catch((errorMsg) => displayErrorMsg(errorMsg));
     }
 }
@@ -949,7 +970,10 @@ document.getElementById('channel-pinned-messages-close').addEventListener('click
     display('channel-pinned-messages', 'none');
 })
 
+// create a button like label for the new pinned message and add it to the
+// sidebar where all the pinned messages of the channel is displayed
 const createPinnedMessage = (messageInfo) => {
+    console.log(messageInfo);
     const messageId = messageInfo['id'];
     const senderName = messageInfo['senderName'];
     const createAt = messageInfo['createdAt'];
@@ -969,11 +993,12 @@ const createPinnedMessage = (messageInfo) => {
     display(newPinnedMessage.id, 'flex');
 }
 const listPinnedMessages = () => {
-    const pinnedMessages = channelPinnedMessages.get(LAST_VISITED_CHANNEL);
-    if (pinnedMessages !== undefined) {
-        pinnedMessages.forEach((value, key) => {
-            createPinnedMessage(value);
-        })
+    const pinnedMessages = getChanelPinnedMsgs(LAST_VISITED_CHANNEL);
+    console.log(pinnedMessages);
+    if (pinnedMessages !== null) {
+        for (const messageId in pinnedMessages) {
+            createPinnedMessage(pinnedMessages[messageId]);
+        }
     }
 }
 

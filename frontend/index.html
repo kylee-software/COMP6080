@@ -56,6 +56,7 @@
   </div>
   <div id="main-page" class="main-container">
 
+<!----------------------popups for the main page ---------------------------->
     <div class="popup-overlay" id="create-channel-popup">
       <div class="popup">
         <div class="close-container">
@@ -107,11 +108,7 @@
               <img src="images/edit.svg" class="description-hide">
             </div>
           </div>
-          <div id="members-container">
-            <div class="member-info-box" id="member-info-box">
-              <img src="images/default-image.png" class="profile-pic">
-              <span></span>
-            </div>
+          <div id="members-container" class="channel-members-container">
           </div>
         </div>
       </div>
@@ -215,7 +212,70 @@
         </div>
       </div>
     </div>
+<!--------------------------------------------------------------------------->
 
+<!----------------------elements for create copies ---------------------------->
+    <!-- pinned message container for inside the sidebar -->
+    <div id="pinned-message" class="pinned-message-container">
+      <div class="pinned-message-info">
+        <span>sender name</span>
+        <span>time</span>
+      </div>
+      <span class="pinned-message-text">message</span>
+    </div>
+    <!-- member info in the channel's member list  -->
+    <div class="member-info-box" id="member-info-box">
+      <img src="images/default-image.png" class="profile-pic">
+      <span></span>
+    </div>
+    <!-- container for a message in the channel screen -->
+    <div id="channel-message-box" class="member-message-container">
+      <div id="reactions" class="emoji-reactions-container">
+        <img src="images/red-heart.svg" class="emoji-style">
+        <img src="images/frowning-face.svg" class="emoji-style">
+        <img src="images/face-with-steam-from-nose.svg" class="emoji-style">
+        <img src="images/partying-face.svg" class="emoji-style">
+        <img src="images/sad-but-relieved-face.svg" class="emoji-style">
+        <img src="images/face-with-rolling-eyes.svg" class="emoji-style">
+        <img src="images/smiling-face-with-heart-eyes.svg" class="emoji-style">
+        <img src="images/disappointed-face.svg" id="disappointed-face" class="emoji-style">
+        <img src="images/pouting-face.svg" class="emoji-style">
+        <img src="images/grinning-squinting-face.svg" class="emoji-style">
+        <img src="images/smiling-face-with-hearts.svg" class="emoji-style">
+        <img src="images/winking-face.svg" class="emoji-style">
+        <img src="images/rolling-on-the-floor-laughing.svg" class="emoji-style">
+        <img src="images/beaming-face-with-smiling-eyes.svg" class="emoji-style">
+      </div>
+      <div class="message-container">
+        <div class="user-message-container">
+          <div id="sender-profile" class="user-message-profile">
+            <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
+          </div>
+          <div class="user-main-message-container">
+            <span id="sender-name" class="user-message-name"></span>
+            <div class="user-message">
+              <span id="sender-message"></span>
+              <img id="message-image" class="user-channel-photo">
+            </div>
+            <div class="user-reactions" id="message-reactions">
+              <!--                  <div class="reacted-emoji">-->
+              <!--                    <img src="images/face-with-rolling-eyes.svg" class="emoji-style">-->
+              <!--                    <span>2</span>-->
+              <!--                  </div>-->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="message-footer" class="message-info-container">
+        <span id="edited">(edited)</span>
+        <span id="createdAt">date</span>
+        <img id="edit-message" class="icon" src="images/edit.svg" alt="edit message">
+        <img id="pinned" class="pinned" src="images/unpin-message.svg" alt="unpin message">
+      </div>
+    </div>
+    <!-- channel label/button in the sidebar -->
+    <button class="channel" id="channel-item">Private Channel</button>
+<!--------------------------------------------------------------------------->
     <div class="main-page-header">
       <img src="images/logo.png" class="main-page-logo" alt="Slackr Logo">
       <div class="right-side-container">
@@ -234,9 +294,7 @@
             <img src="images/plus-lg.svg" alt="Add Channel Button">
           </button>
         </div>
-        <div class="channels-container" id="private-channelLst">
-          <button class="channel" id="channel-item">Private Channel</button>
-        </div>
+        <div class="channels-container" id="private-channelLst"></div>
         <div class="sidebar-items">
           <button class="channel-label" id="joined-public-channel-label">Joined Public Channels</button>
         </div>
@@ -247,23 +305,14 @@
             <img src="images/plus-lg.svg" alt="Add Channel Button">
           </button>
         </div>
-        <div class="channels-container" id="public-channelLst">
-        </div>
+        <div class="channels-container" id="public-channelLst"></div>
       </div>
       <div id="channel-pinned-messages" class="channel-pinned-messages">
         <div class="close-container">
           <img id="channel-pinned-messages-close" src="images/close.svg" class="popup-close">
         </div>
         <div class="channel-pinned-messages-title">Pinned Messages</div>
-        <div id="pinned-messages" class="pinned-messages-container">
-          <div id="pinned-message" class="pinned-message-container">
-            <div class="pinned-message-info">
-              <span>sender name</span>
-              <span>time</span>
-            </div>
-            <span class="pinned-message-text">message</span>
-          </div>
-        </div>
+        <div id="pinned-messages" class="pinned-messages-container"></div>
       </div>
     </div>
     <div class="main">
@@ -298,52 +347,7 @@
           </div>
         </div>
       </div>
-      <div class="channel-messages-container" id="channel-messages">
-        <div id="channel-message-box" class="member-message-container">
-          <div id="reactions" class="emoji-reactions-container">
-                <img src="images/red-heart.svg" class="emoji-style">
-                <img src="images/frowning-face.svg" class="emoji-style">
-                <img src="images/face-with-steam-from-nose.svg" class="emoji-style">
-                <img src="images/partying-face.svg" class="emoji-style">
-                <img src="images/sad-but-relieved-face.svg" class="emoji-style">
-                <img src="images/face-with-rolling-eyes.svg" class="emoji-style">
-                <img src="images/smiling-face-with-heart-eyes.svg" class="emoji-style">
-                <img src="images/disappointed-face.svg" id="disappointed-face" class="emoji-style">
-                <img src="images/pouting-face.svg" class="emoji-style">
-                <img src="images/grinning-squinting-face.svg" class="emoji-style">
-                <img src="images/smiling-face-with-hearts.svg" class="emoji-style">
-                <img src="images/winking-face.svg" class="emoji-style">
-                <img src="images/rolling-on-the-floor-laughing.svg" class="emoji-style">
-                <img src="images/beaming-face-with-smiling-eyes.svg" class="emoji-style">
-              </div>
-          <div class="message-container">
-            <div class="user-message-container">
-              <div id="sender-profile" class="user-message-profile">
-                <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
-              </div>
-              <div class="user-main-message-container">
-                <span id="sender-name" class="user-message-name"></span>
-                <div class="user-message">
-                  <span id="sender-message"></span>
-                  <img id="message-image" class="user-channel-photo">
-                </div>
-                <div class="user-reactions" id="message-reactions">
-<!--                  <div class="reacted-emoji">-->
-<!--                    <img src="images/face-with-rolling-eyes.svg" class="emoji-style">-->
-<!--                    <span>2</span>-->
-<!--                  </div>-->
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="message-footer-messageId" class="message-info-container">
-            <span id="edited">(edited)</span>
-            <span id="createdAt">date</span>
-            <img id="edit-message" class="icon" src="images/edit.svg" alt="edit message">
-            <img id="pinned" class="pinned" src="images/unpin-message.svg" alt="unpin message">
-          </div>
-        </div>
-      </div>
+      <div class="channel-messages-container" id="channel-messages"></div>
       <div class="channel-text-container">
         <input type="text" id="channel-text-box" class="text-box-container">
         <div class="channel-text-box-image">
@@ -357,7 +361,7 @@
             <img alt="upload photo" src="images/upload-photo.svg">
             <span> Upload Photo</span>
           </div>
-          <span id="sent-channel-message" class="sent-message">Sent</span>
+          <span id="sent-channel-message" class="sent-message">Send</span>
         </div>
       </div>
     </div>

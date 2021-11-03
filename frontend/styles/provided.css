@@ -180,6 +180,11 @@ html, body {
     padding: 0 10px;
     box-sizing: border-box;
 }
+.channel-members-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                       Create Channel Popup                     │ */
@@ -637,6 +642,8 @@ span.a:hover {
 }
 .pinned-messages-container {
     display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
     padding: 10px;
     box-sizing: border-box;
     background: #FFF;
