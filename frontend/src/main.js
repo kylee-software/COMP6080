@@ -3,6 +3,7 @@ import { fileToDataUrl } from './helpers.js';
 let TOKEN = null;
 let USER_ID = null;
 let LAST_VISITED_CHANNEL = null;
+let CHANNEL_START_IDX = 0;
 
 // let userMessageIdCounter = new Map();
 // let channelPinnedMessages = new Map();
@@ -15,22 +16,22 @@ let LAST_VISITED_CHANNEL = null;
 const dictToJson = (dict) => { return JSON.stringify(dict); };
 const jsonToDict = (json) => { return JSON.parse(json); };
 
-const setLastVisitedChannel = (userId) => {
-    const lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
-    if (lastVisitedChannelLst === null) {
-        const lvcDict = {userId: LAST_VISITED_CHANNEL};
-        localStorage.setItem('user-last-visited-channel', dictToJson(lvcDict));
-    } else {
-        const lst = jsonToDict(lastVisitedChannelLst);
-        lst[userId] = LAST_VISITED_CHANNEL;
-        localStorage.setItem('user-last-visited-channel', dictToJson(lst));
-    }
-};
-const getLastVisitedChannel = (userId) => {
-    let lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
-    lastVisitedChannelLst = jsonToDict(lastVisitedChannelLst);
-    return lastVisitedChannelLst[userId];
-};
+// const setLastVisitedChannel = (userId) => {
+//     const lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
+//     if (lastVisitedChannelLst === null) {
+//         const lvcDict = {userId: LAST_VISITED_CHANNEL};
+//         localStorage.setItem('user-last-visited-channel', dictToJson(lvcDict));
+//     } else {
+//         const lst = jsonToDict(lastVisitedChannelLst);
+//         lst[userId] = LAST_VISITED_CHANNEL;
+//         localStorage.setItem('user-last-visited-channel', dictToJson(lst));
+//     }
+// };
+// const getLastVisitedChannel = (userId) => {
+//     let lastVisitedChannelLst = localStorage.getItem('user-last-visited-channel');
+//     lastVisitedChannelLst = jsonToDict(lastVisitedChannelLst);
+//     return lastVisitedChannelLst[userId];
+// };
 const getChanelPinnedMsgs = (channelId) => {
     let channelLst = localStorage.getItem('channel-pinned-messages');
     if (channelLst === null) {
@@ -64,10 +65,7 @@ const addPinnedMessage = (channelId, messageId, messageInfo) => {
             channelLst[channelId][messageId] = messageInfo;
         }
         localStorage.setItem('channel-pinned-messages', dictToJson(channelLst));
-        console.log(localStorage.getItem('channel-pinned-messages'));
     }
-
-    console.log(jsonToDict(localStorage.getItem('channel-pinned-messages')));
 };
 const removePinnedMessage = (channelId, messageId) => {
     let channelLst = localStorage.getItem('channel-pinned-messages');
@@ -154,6 +152,23 @@ const setEndCursor = (element) => {
     })
 }
 
+// display a default image when no channel is being selected
+const displayLobbyScr = () => {
+    display('lobby-image', 'flex');
+    display('channel-header', 'none');
+    display('channel-messages', 'none');
+    display('text-box', 'none');
+    document.getElementById('channel-screen').style.background = '#FFF';
+}
+
+const displayChannelSrc = () => {
+    display('lobby-image', 'none');
+    display('channel-header', 'inline-flex');
+    display('channel-messages', 'flex');
+    display('text-box', 'flex');
+    document.getElementById('channel-screen').style.background = '#ecf0f3';
+}
+
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                      Milestone 1                                          │ */
 /* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
@@ -188,6 +203,7 @@ document.getElementById('login-submit').addEventListener('click', () => {
             listAllChannels();
             display('main-page', 'grid');
             display('start-page', 'none');
+            displayLobbyScr();
         })
         .catch((errorMsg) => {
             displayErrorMsg(errorMsg);
@@ -200,8 +216,11 @@ document.getElementById('login-submit').addEventListener('click', () => {
 
 document.getElementById('logout').addEventListener('click', () => {
     display('start-page', 'block');
+    display('login', 'flex');
     display('register', 'none');
     display('main-page', 'none');
+
+    LAST_VISITED_CHANNEL = null;
 })
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -241,6 +260,7 @@ document.getElementById('register-submit').addEventListener('click', () => {
                 };
 
                 editUserProfile(userInfo).catch((errorMsg) => displayErrorMsg(errorMsg));
+                displayLobbyScr();
             })
             .catch((errorMsg) => displayErrorMsg(errorMsg));
     }
@@ -364,25 +384,27 @@ document.getElementById('create-channel-close').addEventListener('click', () => 
     display('create-channel-popup', 'none');
 })
 
-
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │               Viewing and Editing Channel Details              │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
 document.getElementById('private-channelLst').addEventListener('click', (event) => {
     LAST_VISITED_CHANNEL = event.target.id;
+    CHANNEL_START_IDX = 0;
     const name = event.target.innerText;
     displayMemberSrc(name);
 })
 
 document.getElementById('joined-public-channelLst').addEventListener('click', (event) => {
     LAST_VISITED_CHANNEL = event.target.id;
+    CHANNEL_START_IDX = 0
     const name = event.target.innerText;
     displayMemberSrc(name);
 })
 
 document.getElementById('public-channelLst').addEventListener('click', (event) => {
     LAST_VISITED_CHANNEL = event.target.id;
+    CHANNEL_START_IDX = 0;
     const name = event.target.innerText;
     displayNonMemberSrc(name);
 })
@@ -401,7 +423,7 @@ document.getElementById('channel-about').addEventListener('click', () => {
         .then((channelInfo) => {
             getUserInfo(channelInfo['creator'])
                 .then ((creatorInfo) => {
-                    const time = new Date(channelInfo['createdAt']).toDateString();
+                    const time = new Date(channelInfo['createdAt']).toLocaleString();
                     document.getElementById('channel-title-popup').innerText = 'About';
                     document.getElementById('channel-creator').innerText = creatorInfo['name'];
                     document.getElementById('channel-create-date').innerText = time;
@@ -460,7 +482,6 @@ document.getElementById('leave-channel').addEventListener('click', () => {
             const joinedChannelLst = document.getElementById('joined-public-channelLst');
             const publicChannelLst = document.getElementById('public-channelLst');
             const targetChannel = document.getElementById(LAST_VISITED_CHANNEL);
-            console.log(targetChannel);
             if (privateChannelLst.contains(targetChannel)) {
                 privateChannelLst.removeChild(targetChannel);
                 LAST_VISITED_CHANNEL = null;
@@ -468,6 +489,7 @@ document.getElementById('leave-channel').addEventListener('click', () => {
                 publicChannelLst.appendChild(targetChannel);
                 displayNonMemberSrc(targetChannel.innerText);
             }
+            displayLobbyScr();
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 })
@@ -516,6 +538,8 @@ const displayNonMemberSrc = (channelName) => {
     document.getElementById('channel-name-label').readOnly = true;
     document.getElementById('channel-name-label').value = channelName;
     document.getElementById('channel-name-container').style.pointerEvents = 'none';
+
+    displayChannelSrc();
     // display only the join channel nav icon and the name of the channel
     display('channel-about', 'none');
     display('channel-members', 'none');
@@ -534,9 +558,11 @@ const displayNonMemberSrc = (channelName) => {
     // clear all channel messages from the previous channel that the user
     // was in and render messages for the current channel
     document.getElementById('channel-messages').innerHTML = '';
+    loadMessages();
 };
 
 const displayMemberSrc = (channelName) => {
+    displayChannelSrc();
     // display all nav items of the header except the join channel button
     document.getElementById('channel-name-label').readOnly = false;
     document.getElementById('channel-name-label').value = channelName;
@@ -566,6 +592,9 @@ const displayMemberSrc = (channelName) => {
     // clear all channel messages from the previous channel that the user
     // was in and render messages for the current channel
     document.getElementById('channel-messages').innerHTML = '';
+
+    // load 26 recent messages;
+    loadMessages();
 };
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -577,28 +606,30 @@ const displayMemberSrc = (channelName) => {
 /* │                    Viewing Channel Messages                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-const displayChannelMessages = (channelId) => {
-    let start = 0;
-    let messageCount = 26;
-    while (messageCount > 0) {
-        apiFetch('GET', `message/${LAST_VISITED_CHANNEL}`, TOKEN, start)
-            .then((response) => {
-                loadMessages(response['messages']);
-                messageCount = response['messages'].length;
-                start += 25;
-            }).catch((errorMsg) => {
-                displayErrorMsg(errorMsg);
-            });
-    }
-};
+const loadMessages = () => {
+    const channelMsgsContainer = document.getElementById('channel-messages');
+    // indicate that messages are being render
+    document.getElementById('channel-screen').style.cursor = 'wait';
+    // document.body.style.cursor = 'wait';
 
-const loadMessages = (messages) => {
-    for (let i = 0; i < messages.length; i++) {
-        createChannelMessageBox(messages[i]);
-    }
+    apiFetch('GET', `message/${LAST_VISITED_CHANNEL}?start=${CHANNEL_START_IDX}`, TOKEN, null)
+        .then((response) => {
+            CHANNEL_START_IDX += 26;
+            const messages = response['messages'];
+
+            // // change the flex direction so that messages are added from bottom to top
+            // channelMsgsContainer.style.flexDirection = 'column-reverse';
+
+            for (let i = 0; i < messages.length; i++) {
+                createChannelMessageBox(messages[i], 'load');
+            }
+
+            document.getElementById('channel-screen').style.cursor = 'default';
+        })
+        .catch((errorMsg) => displayErrorMsg(errorMsg));
 }
 
-const createChannelMessageBox = (messageInfo) => {
+const createChannelMessageBox = (messageInfo, type) => {
     const messageId = messageInfo['id'];
     const message = messageInfo['message'];
     const image = messageInfo['image'];
@@ -610,7 +641,7 @@ const createChannelMessageBox = (messageInfo) => {
     const reacts = messageInfo['reacts'];
 
     const newMessageBox = document.getElementById('channel-message-box').cloneNode(true);
-    newMessageBox.id = messageId.toString();
+    newMessageBox.id = `${newMessageBox.id}-${messageId.toString()}`;
     const reactionEmojis = newMessageBox.children[0];
     reactionEmojis.id = `reactions-${messageId.toString()}`;
 
@@ -664,7 +695,16 @@ const createChannelMessageBox = (messageInfo) => {
     const pinnedIcon = messageBoxFooter.children[3];
     pinnedIcon.id = `${pinnedIcon.id}-${messageId}`;
 
-    document.getElementById('channel-messages').appendChild(newMessageBox);
+    const msgContainer = document.getElementById('channel-messages');
+    const scrollHeightBefore = msgContainer.scrollHeight;
+
+    if (type === 'send') {
+        msgContainer.appendChild(newMessageBox);
+    } else {
+        msgContainer.prepend(newMessageBox);
+    }
+
+    // document.getElementById('channel-messages').appendChild(newMessageBox);
 
     // pin message icon
     if (pinned) {
@@ -690,10 +730,10 @@ const createChannelMessageBox = (messageInfo) => {
     // editedAt label
     if (!edited) {
         display(editedLabel.id, 'none')
-        createdAtLabel.innerText = new Date(sentAt).toDateString();
+        createdAtLabel.innerText = new Date(sentAt).toLocaleString();
     } else {
         display(editedLabel.id, 'inline')
-        createdAtLabel.innerText = new Date(editedAt).toDateString();
+        createdAtLabel.innerText = new Date(editedAt).toLocaleString();
     }
 
     // display reacted emojis
@@ -703,20 +743,41 @@ const createChannelMessageBox = (messageInfo) => {
         createReactedEmoji(emojiName, messageId, userId);
     }
     display(newMessageBox.id, 'flex');
+    userProfile.addEventListener('click', () => displayMemberProfile(sender));
     messageBody.addEventListener('click', () => displayEmojis(messageId));
     editMessageIcon.addEventListener('click', () => displayEditMsgPopup(messageId));
     reactionEmojis.addEventListener('click', (event) => reactMessage(messageId, event.target), USER_ID);
     reactedEmojis.addEventListener('click', (event) => unreactMessage(messageId, event.target));
     pinnedIcon.addEventListener('click', () => pinMessage(pinnedIcon));
+
+    // to prevent channel from automatically fetch new messages
+    if (type === 'send') {
+        scrollBottom();
+    } else {
+        msgContainer.scrollTop = msgContainer.scrollHeight - scrollHeightBefore + 50;
+    }
 };
+
+// scroll to bottom of the messages in a channel
+const scrollBottom = () => {
+    const channelMsgsContainer = document.getElementById('channel-messages');
+    channelMsgsContainer.scrollTop = channelMsgsContainer.scrollHeight;
+}
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Message Pagination                    │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
-window.addEventListener('scroll', () => {
-    if (window.screenY + window.innerHeight >= document.documentElement.scrollHeight) {
-        displayChannelMessages(LAST_VISITED_CHANNEL);
+document.getElementById('channel-messages').addEventListener('scroll', () => {
+    const channelMsgsContainer = document.getElementById('channel-messages');
+
+    const scrollHeight = channelMsgsContainer.scrollHeight
+    const scrollTop = channelMsgsContainer.scrollTop;
+    console.log(`scroll top: ${scrollTop}, scroll height: ${scrollHeight}`);
+
+    if (scrollTop === 0) {
+        // load messages
+        loadMessages();
     }
 })
 
@@ -725,12 +786,19 @@ window.addEventListener('scroll', () => {
 /* └────────────────────────────────────────────────────────────────┘ */
 //
 
+// sent message when press enter key;
+document.getElementById('channel-text-box').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        sentMessage();
+    }
+})
 const sentMessage = () => {
+
     const message = document.getElementById('channel-text-box');
     const image = document.getElementById('channel-text-box-image');
 
     const body = {
-        'message': message.value,
+        'message': message.innerText,
         'image': (image.src === 'images/upload-image.svg') ? '' : image.src,
     };
 
@@ -740,7 +808,7 @@ const sentMessage = () => {
 
                 let messageInfo = {
                     "id": messageId,
-                    "message": message.value,
+                    "message": message.innerText,
                     "image": image.src,
                     "sender": USER_ID,
                     "sentAt": (new Date()).toISOString(),
@@ -750,9 +818,14 @@ const sentMessage = () => {
                     "reacts": [],
                 };
 
-                createChannelMessageBox(messageInfo);
-                message.value = '';
+                // change the flex direction so that messages are displayed as from top to bottom when sending messages
+                const channelMsgsContainer = document.getElementById('channel-messages');
+                // channelMsgsContainer.style.flexDirection = 'column';
+
+                createChannelMessageBox(messageInfo,'send');
+                message.innerText = '';
                 image.src = 'images/upload-image.svg';
+
             })
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
@@ -765,10 +838,12 @@ const sentMessage = () => {
 document.getElementById('delete-message').addEventListener('click', () => {
     const messageId = document.getElementById('save-message-changes').name;
 
-    apiFetch('DELETE', `message/${LAST_VISITED_CHANNEL}/${messageId}`, TOKEN, null)
+    apiFetch('DELETE', `message/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, null)
         .then(() => {
             const messageBox = document.getElementById(`channel-message-box-${messageId}`);
             document.getElementById('channel-messages').removeChild(messageBox);
+
+            display('edit-message-popup', 'none');
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 })
@@ -793,7 +868,7 @@ document.getElementById('save-message-changes').addEventListener('click', () => 
         };
         apiFetch('PUT', `message/${LAST_VISITED_CHANNEL}/${parseInt(messageId.name)}`, TOKEN, body)
             .then(() => {
-                const editedAt = new Date().toDateString();
+                const editedAt = new Date().toLocaleString();
                 oldMsg.innerText = message.innerText;
                 oldImg.src = img.src;
                 display(`edited-${messageId.name}`, 'inline');
@@ -973,7 +1048,6 @@ document.getElementById('channel-pinned-messages-close').addEventListener('click
 // create a button like label for the new pinned message and add it to the
 // sidebar where all the pinned messages of the channel is displayed
 const createPinnedMessage = (messageInfo) => {
-    console.log(messageInfo);
     const messageId = messageInfo['id'];
     const senderName = messageInfo['senderName'];
     const createAt = messageInfo['createdAt'];
@@ -989,12 +1063,11 @@ const createPinnedMessage = (messageInfo) => {
     // set the message
     newPinnedMessage.children[1].innerText = message;
 
-    pinnedMessages.appendChild(newPinnedMessage);
+    pinnedMessages.prepend(newPinnedMessage);
     display(newPinnedMessage.id, 'flex');
 }
 const listPinnedMessages = () => {
     const pinnedMessages = getChanelPinnedMsgs(LAST_VISITED_CHANNEL);
-    console.log(pinnedMessages);
     if (pinnedMessages !== null) {
         for (const messageId in pinnedMessages) {
             createPinnedMessage(pinnedMessages[messageId]);
@@ -1005,7 +1078,6 @@ const listPinnedMessages = () => {
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                       Milestone 4                                         │ */
 /* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
-
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                    Inviting Users to a Channel                 │ */
@@ -1228,10 +1300,3 @@ const editUserProfile = (userInfo) => {
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                      Fragment Based URL Routing                │ */
 /* └────────────────────────────────────────────────────────────────┘ */
-
-
-// a function to refresh channel screen --> do this before the user logging out
-// 1. map the userId to
-// const node = document.getElementById('create-channel-popup').cloneNode(true);
-// console.log(node);
-// console.log(document.getElementById('create-channel-popup'));

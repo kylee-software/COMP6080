@@ -249,7 +249,7 @@
       <div class="message-container">
         <div class="user-message-container">
           <div id="sender-profile" class="user-message-profile">
-            <img src="images/logo.png" alt="user profile photo" class="user-channel-photo">
+            <img alt="user profile photo" class="user-channel-photo">
           </div>
           <div class="user-main-message-container">
             <span id="sender-name" class="user-message-name"></span>
@@ -258,10 +258,10 @@
               <img id="message-image" class="user-channel-photo">
             </div>
             <div class="user-reactions" id="message-reactions">
-              <!--                  <div class="reacted-emoji">-->
-              <!--                    <img src="images/face-with-rolling-eyes.svg" class="emoji-style">-->
-              <!--                    <span>2</span>-->
-              <!--                  </div>-->
+<!--              <div class="reacted-emoji">-->
+<!--                <img src="images/face-with-rolling-eyes.svg" class="emoji-style">-->
+<!--                <span>2</span>-->
+<!--              </div>-->
             </div>
           </div>
         </div>
@@ -274,7 +274,7 @@
       </div>
     </div>
     <!-- channel label/button in the sidebar -->
-    <button class="channel" id="channel-item">Private Channel</button>
+    <button class="channel" id="channel-item"></button>
 <!--------------------------------------------------------------------------->
     <div class="main-page-header">
       <img src="images/logo.png" class="main-page-logo" alt="Slackr Logo">
@@ -315,11 +315,11 @@
         <div id="pinned-messages" class="pinned-messages-container"></div>
       </div>
     </div>
-    <div class="main">
-      <div style="display: none" class="channel-image-container">
+    <div id="channel-screen" class="main">
+      <div id="lobby-image" style="display: none" class="channel-image-container">
         <img src="images/waiting.PNG" class="waiting-image">
       </div>
-      <div class="channel-header">
+      <div id="channel-header" class="channel-header">
         <div id="channel-name-container" class="channel-name-container">
           <input class="channel-name" id="channel-name-label">
           <img src="images/edit.svg" class="name-hide" id="edit-channel-name">
@@ -348,20 +348,22 @@
         </div>
       </div>
       <div class="channel-messages-container" id="channel-messages"></div>
-      <div class="channel-text-container">
-        <input type="text" id="channel-text-box" class="text-box-container">
-        <div class="channel-text-box-image">
-          <div class="image-area">
-            <img id="channel-text-box-image" src="images/upload-image.svg" class="uploaded-photo">
-            <img id="remove-text-box-image" src="images/close.svg" class="remove-image">
+      <div id="text-box" class="channel-text-container">
+        <span role="textbox" id="channel-text-box" class="text-container" contenteditable="true"></span>
+        <div class="text-box-footer">
+          <div class="channel-text-box-image">
+            <div class="image-area">
+              <img id="channel-text-box-image" src="images/upload-image.svg" class="uploaded-photo">
+              <img id="remove-text-box-image" src="images/close.svg" class="remove-image">
+            </div>
           </div>
-        </div>
-        <div class="channel-message-footer">
-          <div id="channel-upload-photo" class="upload-photo">
-            <img alt="upload photo" src="images/upload-photo.svg">
-            <span> Upload Photo</span>
+          <div class="channel-message-footer">
+            <div id="channel-upload-photo" class="upload-photo">
+              <img alt="upload photo" src="images/upload-photo.svg">
+              <span> Upload Photo</span>
+            </div>
+            <span id="sent-channel-message" class="sent-message">Send</span>
           </div>
-          <span id="sent-channel-message" class="sent-message">Send</span>
         </div>
       </div>
     </div>
