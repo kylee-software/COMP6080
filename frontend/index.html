@@ -199,6 +199,7 @@
           <div>
             <span id="edit-message-box" role="textbox" contenteditable="true" class="edit-message-box"></span>
             <div class="image-area">
+              <input id="edit-message-upload-btn" type="file" accept="image/jpeg, image/jpg, image/png" style="display: none">
               <img id="uploaded-photo" src="images/upload-image.svg" class="uploaded-photo">
               <img id="remove-image" src="images/close.svg" class="remove-image">
             </div>
@@ -222,8 +223,8 @@
     <!-- pinned message container for inside the sidebar -->
     <div id="pinned-message" class="pinned-message-container">
       <div class="pinned-message-info">
-        <span>sender name</span>
-        <span>time</span>
+        <span class="pinned-message-name">sender name</span>
+        <span class="pinned-message-time">time</span>
       </div>
       <span class="pinned-message-text">message</span>
     </div>

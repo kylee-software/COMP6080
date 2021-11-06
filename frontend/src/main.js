@@ -170,11 +170,12 @@ const displayChannelSrc = () => {
 }
 
 const detectChange = (changeElem, targetEle, type) => {
-
-    changeElem.addEventListener('change', () => {
-        targetEle.setAttribute(type, changeElem.getAttribute(type));
-        console.log('changed');
-    })
+    if (targetEle !== undefined && targetEle !== null) {
+        changeElem.addEventListener('change', () => {
+            targetEle.setAttribute(type, changeElem.getAttribute(type));
+            console.log('changed');
+        })
+    }
 }
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
@@ -554,6 +555,7 @@ const displayNonMemberSrc = (channelName) => {
     display('leave-channel', 'none');
     display('join-channel', 'inline-flex');
     display('channel-pinned-messages-icon', 'none');
+    display('remove-text-box-image', 'none');
 
     // prevent non-member to send message to the channel;
     const sentMsgBtn = document.getElementById('sent-channel-message');
@@ -579,6 +581,7 @@ const displayMemberSrc = (channelName) => {
     display('leave-channel', 'inline-flex');
     display('join-channel', 'none');
     display('channel-pinned-messages-icon', 'inline-flex');
+    display('remove-text-box-image', 'none');
 
     // allows the member of the channel change the name of the channel
     document.getElementById('channel-name-container').style.pointerEvents = 'auto';
@@ -679,7 +682,6 @@ const createChannelMessageBox = (messageInfo, type) => {
     // create message image
     const messageImg = messageBodyRight.children[1].children[1];
     messageImg.id = `${messageImg.id}-${messageId.toString()}`;
-    messageImg.src = image;
 
     // create reacted emojis
     const reactedEmojis = messageBodyRight.children[2];
@@ -721,15 +723,8 @@ const createChannelMessageBox = (messageInfo, type) => {
     }
 
     // allow user to edit message if he/she is the sender;
-    // add change event listener their profile if the user changed their profile
     if (sender ===  USER_ID) {
         editMessageIcon.style.display = 'flex';
-
-        const userProfilePhoto = document.getElementById('user-profile-photo');
-        const userProfileName = document.getElementById('user-name');
-
-        detectChange(userProfilePhoto, userProfile.children[0], 'src');
-        detectChange(userProfileName, senderName, 'innerText');
     } else {
         editMessageIcon.style.display = 'none';
     }
@@ -807,8 +802,7 @@ const sendMessage = () => {
 
     const message = document.getElementById('channel-text-box');
     const image = document.getElementById('channel-text-box-image');
-    let imageSrc = image.src.split('/').pop();
-    imageSrc = (imageSrc === 'upload-image.svg') ? '' : image.src;
+    const imageSrc = (image.src === 'images/upload-image.svg') ? '' : image.src;
 
     const body = {
         'message': message.innerText,
@@ -839,6 +833,10 @@ const sendMessage = () => {
         })
         .catch((errorMsg) => displayErrorMsg(errorMsg));
 }
+document.getElementById('remove-text-box-image').addEventListener('click', () => {
+    document.getElementById('channel-text-box-image').src = 'images/upload-image.svg';
+    display('remove-text-box-image', 'none');
+})
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                          Deleting Messages                     │ */
@@ -866,30 +864,70 @@ document.getElementById('save-message-changes').addEventListener('click', () => 
     const messageId = document.getElementById('save-message-changes');
     const message = document.getElementById('edit-message-box');
     const img = document.getElementById('uploaded-photo');
+    let imageSrc = (img.src.split('/').pop() === 'upload-image.svg') ? '' : img.src;
 
     const oldMsg = document.getElementById(`sender-message-${messageId.name}`);
     const oldImg = document.getElementById(`message-image-${messageId.name}`);
 
-    if ((message.innerText !== oldMsg.innerText) || (img.src !== oldImg.src)) {
+    if ((message.innerText !== oldMsg.innerText) || (imageSrc !== oldImg.src)) {
         const body = {
             'message': message.innerText,
-            'image': img.src,
+            'image': imageSrc,
         };
         apiFetch('PUT', `message/${LAST_VISITED_CHANNEL}/${parseInt(messageId.name)}`, TOKEN, body)
             .then(() => {
                 const editedAt = new Date().toLocaleString();
                 oldMsg.innerText = message.innerText;
-                oldImg.src = img.src;
+                oldImg.src = imageSrc;
+
+                if (oldImg.src !== '') {
+                    oldImg.style.display = 'inline';
+                } else {
+                    oldImg.style.display = 'none';
+                }
                 display(`edited-${messageId.name}`, 'inline');
                 document.getElementById(`createdAt-${messageId.name}`).innerText = editedAt;
 
-                messageId.name = '';
-                message.innerText = '';
-                img.src = 'images/upload-image.svg';
+                // update pinned message if exist
+                const pinnedMessage = document.getElementById(`pinned-message-${messageId.name}`);
+                if (pinnedMessage !== undefined && pinnedMessage !== null) {
+                    const pinnedName = pinnedMessage.children[0].children[0];
+                    const pinnedTime = pinnedMessage.children[0].children[1];
+                    const pinnedMsg = pinnedMessage.children[1];
+
+                    pinnedTime.innerText = editedAt;
+                    pinnedMsg.innerText = message.innerText;
+
+                    const messageInfo = {
+                        'id': parseInt(messageId.name),
+                        'senderName': pinnedName.innerText,
+                        'createdAt': pinnedTime.innerText,
+                        'message': pinnedMsg.innerText,
+                    };
+
+                    // update the local storage
+                    updatePinnedMessage(LAST_VISITED_CHANNEL, parseInt(messageId.name), messageInfo);
+                }
                 display('edit-message-popup', 'none');
             })
             .catch((errorMsg) => displayErrorMsg(errorMsg));
     }
+
+    display('edit-message-popup', 'none');
+})
+
+document.getElementById('uploaded-photo').addEventListener('click', () => document.getElementById('edit-message-upload-btn').click())
+document.getElementById('edit-message-upload-btn').addEventListener('change', () => {
+    const fileElem = document.getElementById('edit-message-upload-btn');
+    const file = fileElem.files[0];
+    fileToDataUrl(file).then((response) => {
+        document.getElementById('uploaded-photo').src = response;
+        display('remove-image', 'inline');
+    }).catch((errorMsg) => displayErrorMsg(errorMsg));
+})
+document.getElementById('remove-image').addEventListener('click', () => {
+    document.getElementById('uploaded-photo').src = 'images/upload-image.svg';
+    display('remove-image', 'inline');
 })
 
 document.getElementById('edit-message-close').addEventListener('click', () => {
@@ -902,8 +940,11 @@ const displayEditMsgPopup = (msgId) => {
     const image = document.getElementById(`message-image-${msgId}`);
 
     document.getElementById('edit-message-box').innerText = message.innerText;
-    if (image.src === '') {
+    if (image.src === '' || image.src.split('=').pop() === 'RELOAD_ON_SAVE') {
+    // if (image.src === '') {
         display('remove-image', 'none');
+        image.src = '';
+        document.getElementById('uploaded-photo').src = 'images/upload-image.svg';
     } else {
         display('remove-image', 'inline');
         document.getElementById('uploaded-photo').src = image.src;
@@ -1029,7 +1070,8 @@ const pinMessage = (element) => {
         }).catch((errorMsg) => displayErrorMsg(errorMsg));
     } else {
         apiFetch('POST', `message/pin/${LAST_VISITED_CHANNEL}/${parseInt(messageId)}`, TOKEN, null).then(() => {
-            const senderName = document.getElementById(`sender-name-${messageId}`).innerText;
+            const messageBox = document.getElementById(`channel-message-box-${messageId}`);
+            const senderName = messageBox.getElementsByClassName('user-message-name')[0].innerText;
             const createdAt = document.getElementById(`createdAt-${messageId}`).innerText;
             const message = document.getElementById(`sender-message-${messageId}`).innerText;
             const messageInfo = {
@@ -1107,19 +1149,6 @@ document.getElementById('display-user-profile-popup-close').addEventListener('cl
     display('user-profile-popup', 'none');
 })
 
-// document.getElementById('user-profile').addEventListener('change', () => {
-//     console.log('changed');
-//     const origin = document.getElementById('user-profile-photo');
-//
-//     const messages = document.getElementsByClassName('user-message-profile');
-//     console.log(messages);
-//     // const channelMsgPhoto = document.getElementById(`sender-profile-${USER_ID}`);
-//     //
-//     // if (channelMsgPhoto !== undefined) {
-//     //     channelMsgPhoto.children[0].src = origin.src;
-//     // }
-// })
-
 const displayMemberProfile = (userId) => {
     getUserInfo(userId)
         .then((userInfo) => {
@@ -1159,6 +1188,7 @@ document.getElementById('profile-photo-uploader').addEventListener('change', () 
         document.getElementById('profile-image').src = response;
     }).catch((errorMsg) => displayErrorMsg(errorMsg));
 })
+
 // remove image from the user profile
 document.getElementById('remove-profile-image').addEventListener('click', () => {
     document.getElementById('profile-image').src = 'images/default-image.png';
@@ -1235,18 +1265,40 @@ document.getElementById('save-user-profile-changes').addEventListener('click', (
             // change the user names in channel messages
             for (let i = 0; i < msgsNames.length; i++) {
                 const userId = msgsNames[i].id.split('-')[2];
+                const messageId = msgsNames[i].id.split('-').pop();
+
                 if (parseInt(userId) === USER_ID) {
                     msgsNames[i].innerText = name.value;
+
+                    // update pinned message if exist
+                    const pinnedMessage = document.getElementById(`pinned-message-${messageId}`);
+                    if (pinnedMessage !== undefined && pinnedMessage !== null) {
+                        const pinnedName = pinnedMessage.children[0].children[0];
+                        const pinnedTime = pinnedMessage.children[0].children[1];
+                        const pinnedMsg= pinnedMessage.children[1];
+
+                        pinnedName.innerText = name.value;
+
+                        const messageInfo = {
+                            'id': parseInt(messageId),
+                            'senderName': pinnedName.innerText,
+                            'createdAt': pinnedTime.innerText,
+                            'message': pinnedMsg.innerText,
+                        };
+
+                        // update the local storage
+                        updatePinnedMessage(LAST_VISITED_CHANNEL, parseInt(messageId), messageInfo);
+                    }
                 }
             }
         }
 
         document.getElementById('user-bio').innerText = bio.value;
         document.getElementById('user-email').value = email.value;
-        display('edit-user-profile', 'none');
-        display('display-user-profile', 'flex');
     }
 
+    display('edit-user-profile', 'none');
+    display('display-user-profile', 'flex');
     newPassword.value = '';
     confirmPassword.value = '';
 })
@@ -1274,11 +1326,6 @@ document.getElementById('edit-user-profile-popup-close').addEventListener('click
     display('edit-user-profile', 'none');
     display('display-user-profile', 'flex');
 })
-// document.getElementById('upload-photo-btn').addEventListener('click', () => {
-//
-//     // upload photo;
-//
-// })
 
 const displayUserProfile = (userId) => {
     getUserInfo(userId)

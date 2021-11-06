@@ -322,15 +322,18 @@ html, body {
     font-size: 20px;
     font-weight: bold;
     height: fit-content;
-    max-height: 150px;
     text-overflow: ellipsis;
     text-align: center;
+    overflow: hidden;
 }
 .profile-bio-box {
     width: fit-content;;
     max-width: 120px;
+    max-height: 150px;
     height: fit-content;
     font-size: 14px;
+    hyphens: auto;
+    text-overflow: ellipsis;
 }
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -682,6 +685,20 @@ span.a:hover {
     padding: 3px;
     box-sizing: border-box;
 }
+.pinned-message-name {
+    max-width: 100px;
+    width: fit-content;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pinned-message-time {
+    font-size: 8px;
+}
+.pinned-message-name {
+    max-width: 60px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 .pinned-message-text {
     font-size: 10px;
     padding: 5px;
@@ -947,12 +964,13 @@ button.channel {
     width: 100%;
     padding: 10px;
     margin: 0 20px;
-    font-size: 12px;
+    font-size: 13px;
     background: #FFF;
     border-radius: 10px;
     box-sizing: border-box;
 }
 .user-channel-photo {
+    margin-top: 5px;
     max-width: 50px;
     max-height: 50px;
     object-fit: contain;
