@@ -144,8 +144,12 @@
             <img id="edit-user-profile-popup-close" src="images/close.svg" class="popup-close">
           </div>
           <div class="user-photo-container">
-            <img class="user-profile-photo" id="profile-image">
+            <div class="image-area">
+              <img class="user-profile-photo" id="profile-image">
+              <img id="remove-profile-image" src="images/close.svg" class="remove-image">
+            </div>
             <div class="upload-photo-container" id="upload-photo-btn">
+              <input id="profile-photo-uploader" type="file" accept="image/jpeg, image/png, image/jpg" style="display: none">
               <span>Upload Photo</span>
               <img class="edit-profile-icon" src="images/upload-photo.svg">
             </div>
@@ -359,6 +363,7 @@
           </div>
           <div class="channel-message-footer">
             <div id="channel-upload-photo" class="upload-photo">
+              <input id="textbox-upload-photo" type="file" accept="image/jpeg, image/png, image/jpg" style="display: none">
               <img alt="upload photo" src="images/upload-photo.svg">
               <span> Upload Photo</span>
             </div>

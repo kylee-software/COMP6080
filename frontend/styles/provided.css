@@ -358,6 +358,7 @@ html, body {
     height: fit-content;
 }
 .uploaded-photo {
+    display: block;
     object-fit: contain;
     max-width: 30px;
     max-height: 30px;

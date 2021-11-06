@@ -169,6 +169,14 @@ const displayChannelSrc = () => {
     document.getElementById('channel-screen').style.background = '#ecf0f3';
 }
 
+const detectChange = (changeElem, targetEle, type) => {
+
+    changeElem.addEventListener('change', () => {
+        targetEle.setAttribute(type, changeElem.getAttribute(type));
+        console.log('changed');
+    })
+}
+
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                      Milestone 1                                          │ */
 /* └───────────────────────────────────────────────────────────────────────────────────────────┘ */
@@ -550,7 +558,7 @@ const displayNonMemberSrc = (channelName) => {
     // prevent non-member to send message to the channel;
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'not-allowed';
-    sentMsgBtn.removeEventListener('click', sentMessage);
+    sentMsgBtn.removeEventListener('click', sendMessage);
 
     // hide pinned messages from the sidebar
     display('channel-pinned-messages', 'none');
@@ -580,7 +588,7 @@ const displayMemberSrc = (channelName) => {
     // add event listener to the send message button
     const sentMsgBtn = document.getElementById('sent-channel-message');
     sentMsgBtn.style.cursor = 'pointer';
-    sentMsgBtn.addEventListener('click', sentMessage);
+    sentMsgBtn.addEventListener('click', sendMessage);
 
     // clear the pinned messages from the previous channel that was clicked and
     // render the list of pinned messages for the current channel
@@ -650,13 +658,13 @@ const createChannelMessageBox = (messageInfo, type) => {
 
     // create user profile picture
     const userProfile = messageBody.children[0];
-    userProfile.id = `${userProfile.id}-${messageId.toString()}`;
+    userProfile.id = `${userProfile.id}-${sender.toString()}-${messageId.toString()}`;
 
     const messageBodyRight = messageBody.children[1];
 
     // setting sender's name
     const senderName = messageBodyRight.children[0];
-    senderName.id = `${senderName.id}-${messageId.toString()}`;
+    senderName.id = `${senderName.id}-${sender.toString()}-${messageId.toString()}`;
 
     getUserInfo(sender).then((userInfo) => {
         userProfile.children[0].src = userInfo['image'];
@@ -671,6 +679,7 @@ const createChannelMessageBox = (messageInfo, type) => {
     // create message image
     const messageImg = messageBodyRight.children[1].children[1];
     messageImg.id = `${messageImg.id}-${messageId.toString()}`;
+    messageImg.src = image;
 
     // create reacted emojis
     const reactedEmojis = messageBodyRight.children[2];
@@ -704,8 +713,6 @@ const createChannelMessageBox = (messageInfo, type) => {
         msgContainer.prepend(newMessageBox);
     }
 
-    // document.getElementById('channel-messages').appendChild(newMessageBox);
-
     // pin message icon
     if (pinned) {
         pinnedIcon.src = 'images/pin-message.svg';
@@ -713,15 +720,22 @@ const createChannelMessageBox = (messageInfo, type) => {
         pinnedIcon.src = 'images/unpin-message.svg';
     }
 
-    // edit message icon
+    // allow user to edit message if he/she is the sender;
+    // add change event listener their profile if the user changed their profile
     if (sender ===  USER_ID) {
         editMessageIcon.style.display = 'flex';
+
+        const userProfilePhoto = document.getElementById('user-profile-photo');
+        const userProfileName = document.getElementById('user-name');
+
+        detectChange(userProfilePhoto, userProfile.children[0], 'src');
+        detectChange(userProfileName, senderName, 'innerText');
     } else {
         editMessageIcon.style.display = 'none';
     }
 
     // display message image
-    if (image !== '') {
+    if (image === '') {
         messageImg.style.display = 'none';
     } else {
         messageImg.style.display = 'block';
@@ -770,10 +784,7 @@ const scrollBottom = () => {
 
 document.getElementById('channel-messages').addEventListener('scroll', () => {
     const channelMsgsContainer = document.getElementById('channel-messages');
-
-    const scrollHeight = channelMsgsContainer.scrollHeight
     const scrollTop = channelMsgsContainer.scrollTop;
-    console.log(`scroll top: ${scrollTop}, scroll height: ${scrollHeight}`);
 
     if (scrollTop === 0) {
         // load messages
@@ -789,17 +800,19 @@ document.getElementById('channel-messages').addEventListener('scroll', () => {
 // sent message when press enter key;
 document.getElementById('channel-text-box').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
-        sentMessage();
+        sendMessage();
     }
 })
-const sentMessage = () => {
+const sendMessage = () => {
 
     const message = document.getElementById('channel-text-box');
     const image = document.getElementById('channel-text-box-image');
+    let imageSrc = image.src.split('/').pop();
+    imageSrc = (imageSrc === 'upload-image.svg') ? '' : image.src;
 
     const body = {
         'message': message.innerText,
-        'image': (image.src === 'images/upload-image.svg') ? '' : image.src,
+        'image': imageSrc,
     };
 
     apiFetch('POST', `message/${LAST_VISITED_CHANNEL}`, TOKEN, body)
@@ -809,7 +822,7 @@ const sentMessage = () => {
                 let messageInfo = {
                     "id": messageId,
                     "message": message.innerText,
-                    "image": image.src,
+                    "image": imageSrc,
                     "sender": USER_ID,
                     "sentAt": (new Date()).toISOString(),
                     "edited": false,
@@ -817,10 +830,6 @@ const sentMessage = () => {
                     "pinned": false,
                     "reacts": [],
                 };
-
-                // change the flex direction so that messages are displayed as from top to bottom when sending messages
-                const channelMsgsContainer = document.getElementById('channel-messages');
-                // channelMsgsContainer.style.flexDirection = 'column';
 
                 createChannelMessageBox(messageInfo,'send');
                 message.innerText = '';
@@ -1098,12 +1107,18 @@ document.getElementById('display-user-profile-popup-close').addEventListener('cl
     display('user-profile-popup', 'none');
 })
 
-document.querySelectorAll('.user-message-profile').forEach(msgProfile => {
-    msgProfile.addEventListener('click', () => {
-        const userId = msgProfile.id.split('-').pop();
-        displayMemberProfile(USER_ID);
-    })
-})
+// document.getElementById('user-profile').addEventListener('change', () => {
+//     console.log('changed');
+//     const origin = document.getElementById('user-profile-photo');
+//
+//     const messages = document.getElementsByClassName('user-message-profile');
+//     console.log(messages);
+//     // const channelMsgPhoto = document.getElementById(`sender-profile-${USER_ID}`);
+//     //
+//     // if (channelMsgPhoto !== undefined) {
+//     //     channelMsgPhoto.children[0].src = origin.src;
+//     // }
+// })
 
 const displayMemberProfile = (userId) => {
     getUserInfo(userId)
@@ -1134,6 +1149,20 @@ const getUserInfo = (userId) => apiFetch('GET', `user/${parseInt(userId)}`, TOKE
 /* │              Viewing and Editing User's Own Profile            │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+// click the file uploader when the 'Upload Image' button is clicked;
+document.getElementById('upload-photo-btn').addEventListener('click', () => document.getElementById('profile-photo-uploader').click());
+// get the input from the file uploader
+document.getElementById('profile-photo-uploader').addEventListener('change', () => {
+    const fileElem = document.getElementById('profile-photo-uploader');
+    const file = fileElem.files[0];
+    fileToDataUrl(file).then((response) => {
+        document.getElementById('profile-image').src = response;
+    }).catch((errorMsg) => displayErrorMsg(errorMsg));
+})
+// remove image from the user profile
+document.getElementById('remove-profile-image').addEventListener('click', () => {
+    document.getElementById('profile-image').src = 'images/default-image.png';
+})
 document.getElementById('user-profile').addEventListener('click', () => {
     displayUserProfile(USER_ID);
     display('user-profile-popup', 'flex');
@@ -1161,6 +1190,8 @@ document.getElementById('edit-user-information').addEventListener('click', () =>
     display('display-user-profile', 'none');
 })
 document.getElementById('save-user-profile-changes').addEventListener('click', () => {
+    const oldImage = document.getElementById('user-profile-photo');
+    const oldName = document.getElementById('user-name').innerText;
     const image = document.getElementById('profile-image');
     const name = document.getElementById('edit-user-name');
     const bio = document.getElementById('edit-user-bio');
@@ -1181,8 +1212,35 @@ document.getElementById('save-user-profile-changes').addEventListener('click', (
 
         editUserProfile(userInfo).catch((errorMsg) => displayErrorMsg(errorMsg));
 
-        document.getElementById('user-profile-photo').src = image.src;
-        document.getElementById('user-name').innerText = name.value;
+        if (oldImage.src !== image.src) {
+            // update the profile pic
+            document.getElementById('user-profile-photo').src = image.src;
+            // change the user profile on the top right of the page
+            document.getElementById('user-profile').src = image.src;
+
+            // change profile photos in channel messages
+            const msgsPhotos = document.getElementsByClassName('user-message-profile');            // change the profile photos that are in channel messages
+            for (let i = 0; i < msgsPhotos.length; i++) {
+                const userId = msgsPhotos[i].id.split('-')[2];
+                if (parseInt(userId) === USER_ID) {
+                    msgsPhotos[i].children[0].src = image.src;
+                }
+            }
+        }
+
+        if (oldName.innerText !== name.value) {
+            document.getElementById('user-name').innerText = name.value;
+
+            const msgsNames = document.getElementsByClassName('user-message-name');            // change the profile photos that are in channel messages
+            // change the user names in channel messages
+            for (let i = 0; i < msgsNames.length; i++) {
+                const userId = msgsNames[i].id.split('-')[2];
+                if (parseInt(userId) === USER_ID) {
+                    msgsNames[i].innerText = name.value;
+                }
+            }
+        }
+
         document.getElementById('user-bio').innerText = bio.value;
         document.getElementById('user-email').value = email.value;
         display('edit-user-profile', 'none');
@@ -1266,6 +1324,18 @@ const editUserProfile = (userInfo) => {
 /* │                    Sending Photos in Channels                  │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+// click the file uploader when the 'Upload Image' button is clicked;
+document.getElementById('channel-upload-photo').addEventListener('click', () => document.getElementById('textbox-upload-photo').click());
+
+// get the input from the file uploader
+document.getElementById('textbox-upload-photo').addEventListener('change', () => {
+    const fileElem = document.getElementById('textbox-upload-photo');
+    const file = fileElem.files[0];
+    fileToDataUrl(file).then((response) => {
+        document.getElementById('channel-text-box-image').src = response;
+        display('remove-text-box-image', 'inline');
+    }).catch((errorMsg) => displayErrorMsg(errorMsg));
+})
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                   Viewing Photos in Channels                   │ */
