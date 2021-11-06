@@ -1,4 +1,4 @@
-import { fileToDataUrl } from './helpers.js';
+import {fileToDataUrl} from './helpers.js';
 
 let TOKEN = null;
 let USER_ID = null;
@@ -209,6 +209,12 @@ document.getElementById('login-submit').addEventListener('click', () => {
         .then((response) => {
             TOKEN = response['token'];
             USER_ID = response['userId']
+
+            // get user profile image;
+            getUserInfo(USER_ID).then((userInfo) => {
+                document.getElementById('user-profile').src = userInfo['image'];
+            }).catch((errorMsg) => displayErrorMsg(errorMsg));
+
             listAllChannels();
             display('main-page', 'grid');
             display('start-page', 'none');
@@ -230,6 +236,8 @@ document.getElementById('logout').addEventListener('click', () => {
     display('main-page', 'none');
 
     LAST_VISITED_CHANNEL = null;
+    USER_ID = null;
+    TOKEN = null;
 })
 
 /* ┌────────────────────────────────────────────────────────────────┐ */
@@ -730,10 +738,12 @@ const createChannelMessageBox = (messageInfo, type) => {
     }
 
     // display message image
-    if (image === '') {
+    if (image === '' || image.split('/').pop() === 'upload-image.svg') {
         messageImg.style.display = 'none';
+        messageImg.src = '';
     } else {
         messageImg.style.display = 'block';
+        messageImg.src = image;
     }
 
     // editedAt label
@@ -758,6 +768,7 @@ const createChannelMessageBox = (messageInfo, type) => {
     reactionEmojis.addEventListener('click', (event) => reactMessage(messageId, event.target), USER_ID);
     reactedEmojis.addEventListener('click', (event) => unreactMessage(messageId, event.target));
     pinnedIcon.addEventListener('click', () => pinMessage(pinnedIcon));
+    messageImg.addEventListener('click', () => enlargeImage(messageImg));
 
     // to prevent channel from automatically fetch new messages
     if (type === 'send') {
@@ -825,6 +836,8 @@ const sendMessage = () => {
                     "reacts": [],
                 };
 
+                console.log(messageInfo['image']);
+
                 createChannelMessageBox(messageInfo,'send');
                 message.innerText = '';
                 image.src = 'images/upload-image.svg';
@@ -874,6 +887,7 @@ document.getElementById('save-message-changes').addEventListener('click', () => 
             'message': message.innerText,
             'image': imageSrc,
         };
+        console.log(body['image']);
         apiFetch('PUT', `message/${LAST_VISITED_CHANNEL}/${parseInt(messageId.name)}`, TOKEN, body)
             .then(() => {
                 const editedAt = new Date().toLocaleString();
@@ -1388,6 +1402,17 @@ document.getElementById('textbox-upload-photo').addEventListener('change', () =>
 /* │                   Viewing Photos in Channels                   │ */
 /* └────────────────────────────────────────────────────────────────┘ */
 
+// close the popup whwn click on background
+document.getElementById('enlarge-image-popup').addEventListener('click', () => {
+    display('enlarge-image-popup', 'none');
+})
+
+
+const enlargeImage = (imageSrc) => {
+    document.getElementById('enlarge-image').src = imageSrc.src;
+    display('enlarge-image-popup', 'flex');
+}
+
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
 /* │                                      Milestone 6                                          │ */
@@ -1397,6 +1422,8 @@ document.getElementById('textbox-upload-photo').addEventListener('change', () =>
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                        Infinite Scroll                         │ */
 /* └────────────────────────────────────────────────────────────────┘ */
+
+// Already Implemented
 
 
 /* ┌────────────────────────────────────────────────────────────────┐ */

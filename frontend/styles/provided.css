@@ -66,13 +66,7 @@ html, body {
 /* ┌────────────────────────────────────────────────────────────────┐ */
 /* │                      Error Message Popup                       │ */
 /* └────────────────────────────────────────────────────────────────┘ */
-/*.x-close {*/
-/*    display: flex;*/
-/*    justify-content: flex-end;*/
-/*    width: 100%;*/
-/*    height: fit-content;*/
-/*    margin-bottom: 10px;*/
-/*}*/
+
 .error-message {
     width: 100%;
     height: fit-content;
@@ -407,6 +401,17 @@ html, body {
     outline: 0;
     background-color: #EBEFF2;;
     overflow: auto;
+}
+
+
+/* ┌────────────────────────────────────────────────────────────────┐ */
+/* │                         Enlarge Photo Popup                    │ */
+/* └────────────────────────────────────────────────────────────────┘ */
+
+.photo-style {
+    max-width: 550px;
+    max-height: 550px;
+    object-fit: contain;
 }
 
 /* ┌───────────────────────────────────────────────────────────────────────────────────────────┐ */
